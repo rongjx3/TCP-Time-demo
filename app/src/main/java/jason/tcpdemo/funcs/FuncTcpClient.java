@@ -1,0 +1,246 @@
+package jason.tcpdemo.funcs;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Message;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Handler;
+
+import jason.tcpdemo.R;
+import jason.tcpdemo.coms.TcpClient;
+
+import static android.content.ContentValues.TAG;
+
+
+/**
+ * Created by Jason Zhu on 2017-04-24.
+ * Email: cloud_happy@163.com
+ */
+
+public class FuncTcpClient extends Activity {
+    private String TAG = "FuncTcpClient";
+    @SuppressLint("StaticFieldLeak")
+    public static Context context ;
+    private Button btnStartClient,btnCloseClient, btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientRandom;
+    private Button btnGetTime, btnSendTime, btnCalTime, btnTimeCorrect;
+    private TextView txtRcv,txtSend,txtTime;
+    private EditText editClientSend,editClientID, editClientPort,editClientIp,editTimeCorrect;
+    private static TcpClient tcpClient = null;
+    private MyBtnClicker myBtnClicker = new MyBtnClicker();
+    private final MyHandler myHandler = new MyHandler(this);
+    private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+    ExecutorService exec = Executors.newCachedThreadPool();
+    private TimeStampHelper tsh = new TimeStampHelper();
+
+    private class MyBtnClicker implements View.OnClickListener{
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.btn_tcpClientConn:
+                    Log.i(TAG, "onClick: 开始");
+                    btnStartClient.setEnabled(false);
+                    btnCloseClient.setEnabled(true);
+                    btnClientSend.setEnabled(true);
+                    tcpClient = new TcpClient(editClientIp.getText().toString(),getPort(editClientPort.getText().toString()));
+                    exec.execute(tcpClient);
+                    break;
+                case R.id.btn_tcpClientClose:
+                    tcpClient.closeSelf();
+                    btnStartClient.setEnabled(true);
+                    btnCloseClient.setEnabled(false);
+                    btnClientSend.setEnabled(false);
+                    break;
+                case R.id.btn_tcpCleanClientRecv:
+                    txtRcv.setText("");
+                    break;
+                case R.id.btn_tcpCleanClientSend:
+                    txtSend.setText("");
+                    break;
+                case R.id.btn_tcpClientRandomID:
+                    editClientID.setText("Client");
+                    break;
+                case R.id.btn_tcpClientSend:
+                    Message message = Message.obtain();
+                    message.what = 2;
+                    message.obj = editClientSend.getText().toString();
+                    myHandler.sendMessage(message);
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpClient.send(editClientSend.getText().toString());
+                        }
+                    });
+                    break;
+
+                case R.id.btn_tcpClientGetTime:
+                    long date = tsh.getMydate_local();
+                    Log.i(TAG, "timestamp: "+date);
+                    txtTime.setText(String.valueOf(date));
+                    break;
+                case R.id.btn_tcpClientSendTime:
+                    long dates = tsh.getMydate();
+                    Message messagetime = Message.obtain();
+                    messagetime.what = 4;
+                    messagetime.obj = String.valueOf(dates);
+                    myHandler.sendMessage(messagetime);
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpClient.send("time:"+txtTime.getText().toString());
+                        }
+                    });
+                    break;
+                case R.id.btn_tcpClientCalTime:
+                    long diff = tsh.calcul_diff();
+                    Message messagediff = Message.obtain();
+                    messagediff.what = 3;
+                    messagediff.obj = String.valueOf(diff);
+                    myHandler.sendMessage(messagediff);
+                    break;
+                case R.id.btn_tcpClientTimecorrect:
+                    String cor = editTimeCorrect.getText().toString();
+                    long corr = Long.parseLong(cor);
+                    tsh.setCorrect(corr);
+            }
+        }
+    }
+
+    private class MyHandler extends android.os.Handler{
+        private WeakReference<FuncTcpClient> mActivity;
+
+        MyHandler(FuncTcpClient activity){
+            mActivity = new WeakReference<FuncTcpClient>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (mActivity != null){
+                switch (msg.what){
+                    case 1:
+                        String mess = msg.obj.toString();
+                        if(mess.length()>=5) {
+                            String sta = mess.substring(0, 5);
+                            Log.i(TAG, "substring : " + sta);
+                            if (sta.equals("time:")) {
+                                String mun = mess.substring(5, mess.length()-1);
+                                long ot = Long.parseLong(mun);
+                                txtSend.append("对方时间戳："+mun+"\n");
+                                tsh.setOtherdate(ot);
+                            } else {
+                                txtRcv.append("对方："+msg.obj.toString());
+                            }
+                        }
+                        else
+                        {
+                            txtRcv.append("对方："+msg.obj.toString());
+                        }
+                        break;
+                    case 2:
+                        //txtSend.append(msg.obj.toString());
+                        txtRcv.append("你："+msg.obj.toString()+"\n");
+                        break;
+                    case 3:
+                        //txtSend.append(msg.obj.toString());
+                        txtSend.append("时间戳差值（你的-对方的）："+msg.obj.toString()+"ms\n");
+                        break;
+                    case 4:
+                        txtSend.append("你的时间戳："+msg.obj.toString()+"\n");
+                        break;
+                }
+            }
+        }
+    }
+
+    private class MyBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String mAction = intent.getAction();
+            switch (mAction){
+                case "tcpClientReceiver":
+                    String msg = intent.getStringExtra("tcpClientReceiver");
+                    Message message = Message.obtain();
+                    message.what = 1;
+                    message.obj = msg;
+                    myHandler.sendMessage(message);
+                    break;
+            }
+        }
+    }
+
+
+    private int getPort(String msg){
+        if (msg.equals("")){
+            msg = "1234";
+        }
+        return Integer.parseInt(msg);
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.tcp_client);
+        context = this;
+        bindID();
+        bindListener();
+        bindReceiver();
+        Ini();
+    }
+
+
+
+    private void bindID(){
+        btnStartClient = (Button) findViewById(R.id.btn_tcpClientConn);
+        btnCloseClient = (Button) findViewById(R.id.btn_tcpClientClose);
+        btnCleanClientRcv = (Button) findViewById(R.id.btn_tcpCleanClientRecv);
+        btnCleanClientSend = (Button) findViewById(R.id.btn_tcpCleanClientSend);
+        btnClientRandom = (Button) findViewById(R.id.btn_tcpClientRandomID);
+        btnClientSend = (Button) findViewById(R.id.btn_tcpClientSend);
+        btnGetTime = (Button) findViewById(R.id.btn_tcpClientGetTime);
+        btnSendTime = (Button) findViewById(R.id.btn_tcpClientSendTime);
+        btnCalTime = (Button) findViewById(R.id.btn_tcpClientCalTime);
+        btnTimeCorrect = (Button) findViewById(R.id.btn_tcpClientTimecorrect);
+        editClientPort = (EditText) findViewById(R.id.edit_tcpClientPort);
+        editClientIp = (EditText) findViewById(R.id.edit_tcpClientIp);
+        editClientSend = (EditText) findViewById(R.id.edit_tcpClientSend);
+        editClientID = (EditText) findViewById(R.id.edit_tcpClientID);
+        editTimeCorrect = (EditText) findViewById(R.id.edit_Client_Timecorrect);
+        txtRcv = (TextView) findViewById(R.id.txt_ClientRcv);
+        txtSend = (TextView) findViewById(R.id.txt_ClientSend);
+        txtTime = (TextView) findViewById(R.id.txt_clienttimestamp);
+    }
+    private void bindListener(){
+        btnStartClient.setOnClickListener(myBtnClicker);
+        btnCloseClient.setOnClickListener(myBtnClicker);
+        btnCleanClientRcv.setOnClickListener(myBtnClicker);
+        btnCleanClientSend.setOnClickListener(myBtnClicker);
+        btnClientRandom.setOnClickListener(myBtnClicker);
+        btnClientSend.setOnClickListener(myBtnClicker);
+        btnGetTime.setOnClickListener(myBtnClicker);
+        btnSendTime.setOnClickListener(myBtnClicker);
+        btnCalTime.setOnClickListener(myBtnClicker);
+        btnTimeCorrect.setOnClickListener(myBtnClicker);
+    }
+    private void bindReceiver(){
+        IntentFilter intentFilter = new IntentFilter("tcpClientReceiver");
+        registerReceiver(myBroadcastReceiver,intentFilter);
+    }
+    private void Ini(){
+        btnCloseClient.setEnabled(false);
+        btnClientSend.setEnabled(false);
+
+    }
+}
