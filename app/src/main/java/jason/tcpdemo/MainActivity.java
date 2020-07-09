@@ -10,18 +10,22 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import org.w3c.dom.Text;
 
 import jason.tcpdemo.funcs.FuncTcpClient;
 import jason.tcpdemo.funcs.FuncTcpServer;
+import jason.tcpdemo.util.PermissionsUtil;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements PermissionsUtil.IPermissionsCallback{
 
     private RadioButton radioBtnServer,radioBtnClient;
     private Button btnFuncEnsure;
     private TextView txtShowFunc;
     private MyRadioButtonCheck myRadioButtonCheck = new MyRadioButtonCheck();
     private MyButtonClick myButtonClick = new MyButtonClick();
+    private PermissionsUtil permissionsUtil;
 
     private class MyRadioButtonCheck implements RadioButton.OnCheckedChangeListener{
 
@@ -65,6 +69,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.function);
+        getPermission();
         bindID();
         bindListener();
     }
@@ -80,5 +85,27 @@ public class MainActivity extends Activity {
         radioBtnClient.setOnCheckedChangeListener(myRadioButtonCheck);
         radioBtnServer.setOnCheckedChangeListener(myRadioButtonCheck);
         btnFuncEnsure.setOnClickListener(myButtonClick);
+    }
+    private void getPermission(){
+        permissionsUtil = PermissionsUtil.with(this)
+                .requestCode(0)
+                .isDebug(true)
+                .permissions(PermissionsUtil.Permission.Microphone.RECORD_AUDIO)
+                .request();
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionsUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, String... permission) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, String... permission) {
+
     }
 }

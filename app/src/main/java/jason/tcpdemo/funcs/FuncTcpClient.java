@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -14,12 +15,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import jason.tcpdemo.R;
+import jason.tcpdemo.coms.AudioHelper;
 import jason.tcpdemo.coms.TcpClient;
 
 import static android.content.ContentValues.TAG;
@@ -38,12 +43,57 @@ public class FuncTcpClient extends Activity {
     private Button btnGetTime, btnSendTime, btnCalTime, btnTimeCorrect;
     private TextView txtRcv,txtSend,txtTime;
     private EditText editClientSend,editClientID, editClientPort,editClientIp,editTimeCorrect;
+    private Button btnControlAudio;
+    private TextView txtVolume;
+    private AudioHelper audioHelper = new AudioHelper();
     private static TcpClient tcpClient = null;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     ExecutorService exec = Executors.newCachedThreadPool();
     private TimeStampHelper tsh = new TimeStampHelper();
+    private AudioHandler audioHandler = new AudioHandler(this);
+    private boolean isAudioRun = false;
+    private boolean needPause = false;
+    private boolean needStop = false;
+    private boolean isfirstListen = true;
+    private Object lock = new Object();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            while (true){
+                if(needStop){
+                    stopThread();
+                    needStop = false;
+                }
+                if(needPause){
+                    try{
+                        Thread.sleep(1500);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    needPause = false;
+                }
+                if(isAudioRun){
+                    Message msg = audioHandler.obtainMessage();
+                    msg.obj = audioHelper.getVolume();
+                    audioHandler.sendMessage(msg);
+                }
+                Log.d(TAG, "run: "+Thread.currentThread().getId());
+            }
+        }
+    };
+    private Thread audioListenThread = new Thread(runnable);
+
+    private void stopThread(){
+        synchronized (lock){
+            try{
+                lock.wait();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
 
     private class MyBtnClicker implements View.OnClickListener{
 
@@ -115,6 +165,26 @@ public class FuncTcpClient extends Activity {
                     String cor = editTimeCorrect.getText().toString();
                     long corr = Long.parseLong(cor);
                     tsh.setCorrect(corr);
+                    break;
+                case R.id.btn_tcpClientControlAudio:
+                    //第一次按监听键
+                    if(!isAudioRun && isfirstListen){
+                        audioHelper.startRecord();
+                        audioListenThread.start();
+                        isfirstListen = false;
+                    }else if(!isAudioRun && !isfirstListen){
+                        //第二次
+                        audioHelper.startRecord();
+                        synchronized (lock){
+                            lock.notify();
+                        }
+                    } else {
+                        //再按开始
+                        audioHelper.stopRecord();
+                        needStop = true;
+                    }
+                    isAudioRun = !isAudioRun;
+                    break;
             }
         }
     }
@@ -164,6 +234,32 @@ public class FuncTcpClient extends Activity {
             }
         }
     }
+
+    private class AudioHandler extends android.os.Handler{
+        private WeakReference<FuncTcpClient> mActivity;
+        AudioHandler(FuncTcpClient activity){
+            mActivity = new WeakReference<FuncTcpClient>(activity);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if(mActivity != null){
+                double db = (double) msg.obj;
+                txtVolume.setText(String.valueOf(db));
+                if(db > 78){
+                    needPause = true;
+                    Message msg1 = myHandler.obtainMessage();
+                    long dates = tsh.getMydate_local();
+                    Log.d(TAG, "handleMessage: "+tsh.getMydate());
+                    msg1.what = 4;
+                    msg1.obj = String.valueOf(dates);
+                    myHandler.sendMessage(msg1);
+                    txtTime.setText(String.valueOf(dates));
+                }
+            }
+        }
+    }
+
 
     private class MyBroadcastReceiver extends BroadcastReceiver{
 
@@ -221,6 +317,8 @@ public class FuncTcpClient extends Activity {
         txtRcv = (TextView) findViewById(R.id.txt_ClientRcv);
         txtSend = (TextView) findViewById(R.id.txt_ClientSend);
         txtTime = (TextView) findViewById(R.id.txt_clienttimestamp);
+        btnControlAudio = (Button)findViewById(R.id.btn_tcpClientControlAudio);
+        txtVolume = (TextView) findViewById(R.id.txt_tcpClientVolumeShow);
     }
     private void bindListener(){
         btnStartClient.setOnClickListener(myBtnClicker);
@@ -233,6 +331,7 @@ public class FuncTcpClient extends Activity {
         btnSendTime.setOnClickListener(myBtnClicker);
         btnCalTime.setOnClickListener(myBtnClicker);
         btnTimeCorrect.setOnClickListener(myBtnClicker);
+        btnControlAudio.setOnClickListener(myBtnClicker);
     }
     private void bindReceiver(){
         IntentFilter intentFilter = new IntentFilter("tcpClientReceiver");

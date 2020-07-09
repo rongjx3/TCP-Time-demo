@@ -15,6 +15,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -25,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import jason.tcpdemo.R;
+import jason.tcpdemo.coms.AudioHelper;
 import jason.tcpdemo.coms.TcpServer;
 
 import static android.content.ContentValues.TAG;
@@ -39,11 +43,57 @@ public class FuncTcpServer extends Activity {
     private Button btnGetTime, btnSendTime, btnCalTime, btnTimeCorrect;
     private TextView txtRcv,txtSend,txtServerIp,txtTime;
     private EditText editServerSend,editServerID, editServerPort,editTimeCorrect;
+    private Button btnControlAudio;
+    private TextView txtVolume;
+    private AudioHelper audioHelper = new AudioHelper();
     private static TcpServer tcpServer = null;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
+    private AudioHandler audioHandler = new AudioHandler(this);
+    private boolean isAudioRun = false;
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            while (true){
+                if(needStop){
+                    stopThread();
+                    needStop = false;
+                }
+                if(needPause){
+                    try{
+                        Thread.sleep(1500);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    needPause = false;
+                }
+                if(isAudioRun){
+                    Message msg = audioHandler.obtainMessage();
+                    msg.obj = audioHelper.getVolume();
+                    audioHandler.sendMessage(msg);
+                }
+                Log.d(TAG, "run: "+Thread.currentThread().getId());
+            }
+
+        }
+    };
+    private Thread audioListenThread = new Thread(runnable);
+    private boolean needStop = false;
+    private boolean isfirstListen = true;
+    private Object lock = new Object();
+    private boolean needPause = false;
+
+    private void stopThread(){
+        synchronized (lock){
+            try{
+                lock.wait();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
     @SuppressLint("StaticFieldLeak")
     public static Context context;
     ExecutorService exec = Executors.newCachedThreadPool();
@@ -91,6 +141,31 @@ public class FuncTcpServer extends Activity {
                     case 4:
                         txtSend.append("你的时间戳："+msg.obj.toString()+"\n");
                         break;
+                }
+            }
+        }
+    }
+
+    private class AudioHandler extends android.os.Handler{
+        private WeakReference<FuncTcpServer> mActivity;
+        AudioHandler(FuncTcpServer activity){
+            mActivity = new WeakReference<FuncTcpServer>(activity);
+            Log.d(TAG, "run111: "+Thread.currentThread().getId());
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if(mActivity != null){
+                double db = (double) msg.obj;
+                txtVolume.setText(String.valueOf(db));
+                if(db > 78){
+                    needPause = true;
+                    Message msg1 = myHandler.obtainMessage();
+                    long dates = tsh.getMydate_local();
+                    msg1.what = 4;
+                    msg1.obj = String.valueOf(dates);
+                    myHandler.sendMessage(msg1);
+                    txtTime.setText(String.valueOf(dates));
                 }
             }
         }
@@ -188,6 +263,26 @@ public class FuncTcpServer extends Activity {
                     String cor = editTimeCorrect.getText().toString();
                     long corr = Long.parseLong(cor);
                     tsh.setCorrect(corr);
+                    break;
+                case R.id.btn_tcpServerControlAudio:
+                    //第一次按监听键
+                    if(!isAudioRun && isfirstListen){
+                        audioHelper.startRecord();
+                        audioListenThread.start();
+                        isfirstListen = false;
+                    }else if(!isAudioRun && !isfirstListen){
+                        //第二次
+                        audioHelper.startRecord();
+                        synchronized (lock){
+                            lock.notify();
+                        }
+                    } else {
+                        //再按开始
+                        audioHelper.stopRecord();
+                        needStop = true;
+                    }
+                    isAudioRun = !isAudioRun;
+                    break;
             }
         }
     }
@@ -227,6 +322,7 @@ public class FuncTcpServer extends Activity {
         btnSendTime.setOnClickListener(myBtnClicker);
         btnCalTime.setOnClickListener(myBtnClicker);
         btnTimeCorrect.setOnClickListener(myBtnClicker);
+        btnControlAudio.setOnClickListener(myBtnClicker);
     }
 
     private void bindID() {
@@ -248,6 +344,8 @@ public class FuncTcpServer extends Activity {
         editServerPort = (EditText)findViewById(R.id.edit_Server_Port);
         editTimeCorrect = (EditText) findViewById(R.id.edit_Server_Timecorrect);
         txtTime = (TextView) findViewById(R.id.txt_timestamp);
+        btnControlAudio = (Button)findViewById(R.id.btn_tcpServerControlAudio);
+        txtVolume = (TextView) findViewById(R.id.txt_tcpServerVolumeShow);
     }
 
     /**
