@@ -23,11 +23,13 @@ import jason.tcpdemo.funcs.FuncTcpServer;
 
 public class TcpServer implements Runnable{
     private String TAG = "TcpServer";
+    private String name = "tcpServerReceiver";
     private int port = 1234;
     private boolean isListen = true;   //线程监听标志位
     public ArrayList<ServerSocketThread> SST = new ArrayList<ServerSocketThread>();
-    public TcpServer(int port){
+    public TcpServer(int port, String subname){
         this.port = port;
+        this.name = "tcpServerReceiver" + subname;
     }
 
     //更改监听标志位
@@ -86,6 +88,12 @@ public class TcpServer implements Runnable{
             ip = socket.getInetAddress().toString();
             Log.i(TAG, "ServerSocketThread:检测到新的客户端联入,ip:" + ip);
 
+            String in = "[新的客户端连入]\n";
+            Intent intent =new Intent();
+            intent.setAction(name);
+            intent.putExtra(name,in);
+            FuncTcpServer.context.sendBroadcast(intent);//将消息发送给主界面
+
             try {
                 socket.setSoTimeout(5000);
                 os = socket.getOutputStream();
@@ -114,8 +122,8 @@ public class TcpServer implements Runnable{
                         rcvMsg = new String(buff,0,rcvLen,"utf-8");
                         Log.i(TAG, "run:收到消息: " + rcvMsg);
                         Intent intent =new Intent();
-                        intent.setAction("tcpServerReceiver");
-                        intent.putExtra("tcpServerReceiver",rcvMsg);
+                        intent.setAction(name);
+                        intent.putExtra(name,rcvMsg);
                         FuncTcpServer.context.sendBroadcast(intent);//将消息发送给主界面
                         if (rcvMsg.equals("QuitServer")){
                             isRun = false;

@@ -10,6 +10,7 @@ import java.util.TimeZone;
 
 public class TimeStampHelper {
     private long mydate = 0, otherdate = 0 ; //我的时间戳和对方的时间戳
+    private long clientdate1 = 0, clientdate2 = 0 ; //服务器专用：客户端的时间戳
     private long correct = 0; //时间戳补正值
 
     //从网络上获取时间戳（不好用）
@@ -54,6 +55,14 @@ public class TimeStampHelper {
         this.otherdate = otherdate;
     }
 
+    public void setClientdate1(long clientdate1) {
+        this.clientdate1 = clientdate1;
+    }
+
+    public void setClientdate2(long clientdate2) {
+        this.clientdate2 = clientdate2;
+    }
+
     public void setCorrect(long correct) {
         this.correct = correct;
     }
@@ -69,5 +78,9 @@ public class TimeStampHelper {
     //计算差值
     public long calcul_diff() {
         return mydate - otherdate;
+    }
+
+    public long calcul_client_diff() {
+        return clientdate1 - clientdate2;
     }
 }

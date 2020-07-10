@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="5"
+    android:weightSum="6"
     >
 
     <LinearLayout
@@ -28,14 +28,26 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="port"/>
+                android:text="port1"/>
 
             <EditText
-                android:id="@+id/edit_Server_Port"
+                android:id="@+id/edit_Server_Port1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:hint="1234"
+                android:text="1232"
+                android:inputType="number" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="port2"/>
+
+            <EditText
+                android:id="@+id/edit_Server_Port2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="1233"
                 android:inputType="number" />
         </LinearLayout>
         <LinearLayout
@@ -74,28 +86,32 @@
             android:layout_height="wrap_content"
             android:text="关闭"
             android:id="@+id/btn_tcpServerClose"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清除消息区"
-            android:id="@+id/btn_tcpCleanServerRecv"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清除时间戳区"
-            android:id="@+id/btn_tcpCleanServerSend"/>
+
+
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:layout_weight="2">
-        <TextView
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="bottom"
-            android:text="消息区：" />
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:text="消息区：" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清除消息区"
+                android:id="@+id/btn_tcpCleanServerRecv"/>
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="5"
@@ -129,12 +145,24 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="2">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="时间戳区：" />
+        android:layout_weight="3">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="时间戳区：" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清除时间戳区"
+                android:id="@+id/btn_tcpCleanServerSend"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/txt_ServerSend"
@@ -154,23 +182,30 @@
                 android:layout_width="0dp"
                 android:layout_weight="3"
                 android:gravity="center"
-                android:id="@+id/txt_timestamp"
-                android:text="时间戳"
+                android:id="@+id/txt_timestamp1"
+                android:text="[port1]时间戳"
                 android:layout_height="match_parent" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:id="@+id/txt_timestamp2"
+                android:text="[port2]时间戳"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="2">
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
-                android:id="@+id/btn_tcpServerGetTime"
-                android:text="获取"/>
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:id="@+id/btn_tcpServerSendTime"
-                android:text="发送"/>
+                android:id="@+id/btn_tcpServerCheckTime"
+                android:text="时间戳对齐"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -178,49 +213,15 @@
                 android:layout_gravity="right"
                 android:id="@+id/btn_tcpServerCalTime"
                 android:text="差值"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:id="@+id/btn_tcpServerSendTime"
+                android:text="发送结果"/>
 
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            android:layout_weight="2">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="5"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="音量"
-                android:id="@+id/txt_tcpServerVolumeShow"
-                />
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="监听声音"
-                android:id="@+id/btn_tcpServerControlAudio"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            android:layout_weight="2">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="时间戳补正:"/>
-            <EditText
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="0"
-                android:id="@+id/edit_Server_Timecorrect"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="补正"
-                android:id="@+id/btn_tcpServerTimecorrect"/>
+
         </LinearLayout>
 
     </LinearLayout>

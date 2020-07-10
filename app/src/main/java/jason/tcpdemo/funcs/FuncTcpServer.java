@@ -40,19 +40,17 @@ import static android.content.ContentValues.TAG;
 
 public class FuncTcpServer extends Activity {
     private Button btnStartServer,btnCloseServer, btnCleanServerSend, btnCleanServerRcv,btnServerSend,btnServerRandom;
-    private Button btnGetTime, btnSendTime, btnCalTime, btnTimeCorrect;
-    private TextView txtRcv,txtSend,txtServerIp,txtTime;
-    private EditText editServerSend,editServerID, editServerPort,editTimeCorrect;
-    private Button btnControlAudio;
-    private TextView txtVolume;
+    private Button btnCheckTime, btnSendTime, btnCalTime;
+    private TextView txtRcv,txtSend,txtServerIp,txtTime1, txtTime2;
+    private EditText editServerSend,editServerID, editServerPort1,editServerPort2;
     private AudioHelper audioHelper = new AudioHelper();
-    private static TcpServer tcpServer = null;
+    private static TcpServer tcpServer1 = null, tcpServer2 = null;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
-    private AudioHandler audioHandler = new AudioHandler(this);
-    private boolean isAudioRun = false;
+    //private AudioHandler audioHandler = new AudioHandler(this);
+    /*private boolean isAudioRun = false;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -81,7 +79,7 @@ public class FuncTcpServer extends Activity {
     };
     private Thread audioListenThread = new Thread(runnable);
     private boolean needStop = false;
-    private boolean isfirstListen = true;
+    private boolean isfirstListen = true;*/
     private Object lock = new Object();
     private boolean needPause = false;
 
@@ -110,10 +108,11 @@ public class FuncTcpServer extends Activity {
         public void handleMessage(Message msg) {
             FuncTcpServer activity = mActivity.get();
             if (activity!= null){
+                String mess;
                 switch (msg.what){
                     case 1:
-                        String mess = msg.obj.toString();
-                        if(mess.length()>=5) {
+                        mess = msg.obj.toString();
+                        /*if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring : " + sta);
                             if (sta.equals("time:")) {
@@ -128,25 +127,69 @@ public class FuncTcpServer extends Activity {
                         else
                         {
                             txtRcv.append("对方："+msg.obj.toString());
-                        }
+                        }*/
+                        txtRcv.append(msg.obj.toString());
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append("你："+msg.obj.toString()+"\n");
+                        txtRcv.append(editServerID.getText().toString()+"（你）:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
-                        txtSend.append("时间戳差值（你的-对方的）："+msg.obj.toString()+"ms\n");
+                        txtSend.append("时间戳差值（[port1]-[port2]）："+msg.obj.toString()+"ms\n");
                         break;
                     case 4:
-                        txtSend.append("你的时间戳："+msg.obj.toString()+"\n");
+                        txtSend.append("发送计算结果（[port1]-[port2]）："+msg.obj.toString()+"ms\n");
                         break;
+                    case 5:
+                        mess = msg.obj.toString();
+                        if(mess.length()>=5) {
+                            String sta = mess.substring(0, 5);
+                            Log.i(TAG, "substring : " + sta);
+                            if (sta.equals("time:")) {
+                                String mun = mess.substring(5, mess.length()-1);
+                                long ot = Long.parseLong(mun);
+                                txtSend.append("[port1]时间戳："+mun+"\n");
+                                tsh.setClientdate1(ot);
+                                txtTime1.setText("[port1]:"+ot);
+                            } else {
+                                txtRcv.append("[port1]"+msg.obj.toString());
+                            }
+                        }
+                        else
+                        {
+                            txtRcv.append("[port1]"+msg.obj.toString());
+                        }
+                        //txtRcv.append("[port1]"+msg.obj.toString());
+                        break;
+                    case 6:
+                        mess = msg.obj.toString();
+                        if(mess.length()>=5) {
+                            String sta = mess.substring(0, 5);
+                            Log.i(TAG, "substring : " + sta);
+                            if (sta.equals("time:")) {
+                                String mun = mess.substring(5, mess.length()-1);
+                                long ot = Long.parseLong(mun);
+                                txtSend.append("[port2]时间戳："+mun+"\n");
+                                tsh.setClientdate2(ot);
+                                txtTime2.setText("[port2]:"+ot);
+                            } else {
+                                txtRcv.append("[port2]"+msg.obj.toString());
+                            }
+                        }
+                        else
+                        {
+                            txtRcv.append("[port2]"+msg.obj.toString());
+                        }
+                        //txtRcv.append("[port2]"+msg.obj.toString());
+                        break;
+
                 }
             }
         }
     }
 
-    private class AudioHandler extends android.os.Handler{
+    /*private class AudioHandler extends android.os.Handler{
         private WeakReference<FuncTcpServer> mActivity;
         AudioHandler(FuncTcpServer activity){
             mActivity = new WeakReference<FuncTcpServer>(activity);
@@ -165,17 +208,18 @@ public class FuncTcpServer extends Activity {
                     msg1.what = 4;
                     msg1.obj = String.valueOf(dates);
                     myHandler.sendMessage(msg1);
-                    txtTime.setText(String.valueOf(dates));
+                    txtTime1.setText(String.valueOf(dates));
                 }
             }
         }
-    }
+    }*/
 
     private class MyBroadcastReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String mAction = intent.getAction();
+            Log.i(TAG, "mAction:"+mAction);
             switch (mAction){
                 case "tcpServerReceiver":
                     String msg = intent.getStringExtra("tcpServerReceiver");
@@ -184,12 +228,30 @@ public class FuncTcpServer extends Activity {
                     message.obj = msg;
                     myHandler.sendMessage(message);
                     break;
+                case "tcpServerReceiver1":
+                    String msg1 = intent.getStringExtra("tcpServerReceiver1");
+                    Message message1 = Message.obtain();
+                    message1.what = 5;
+                    message1.obj = msg1;
+                    myHandler.sendMessage(message1);
+                    break;
+                case "tcpServerReceiver2":
+                    String msg2 = intent.getStringExtra("tcpServerReceiver2");
+                    Message message2 = Message.obtain();
+                    message2.what = 6;
+                    message2.obj = msg2;
+                    myHandler.sendMessage(message2);
+                    break;
             }
         }
     }
 
     private void bindReceiver(){
-        IntentFilter intentFilter = new IntentFilter("tcpServerReceiver");
+        //IntentFilter intentFilter = new IntentFilter("tcpServerReceiver");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("tcpServerReceiver");
+        intentFilter.addAction("tcpServerReceiver1");
+        intentFilter.addAction("tcpServerReceiver2");
         registerReceiver(myBroadcastReceiver,intentFilter);
     }
 
@@ -203,11 +265,14 @@ public class FuncTcpServer extends Activity {
                     btnStartServer.setEnabled(false);
                     btnCloseServer.setEnabled(true);
                     btnServerSend.setEnabled(true);
-                    tcpServer = new TcpServer(getHost(editServerPort.getText().toString()));
-                    exec.execute(tcpServer);
+                    tcpServer1 = new TcpServer(getHost(editServerPort1.getText().toString()),"1");
+                    exec.execute(tcpServer1);
+                    tcpServer2 = new TcpServer(getHost(editServerPort2.getText().toString()),"2");
+                    exec.execute(tcpServer2);
                     break;
                 case R.id.btn_tcpServerClose:
-                    tcpServer.closeSelf();
+                    tcpServer1.closeSelf();
+                    tcpServer2.closeSelf();
                     btnStartServer.setEnabled(true);
                     btnCloseServer.setEnabled(false);
                     btnServerSend.setEnabled(false);
@@ -229,67 +294,73 @@ public class FuncTcpServer extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpServer.SST.get(0).send(editServerSend.getText().toString());
+                            tcpServer1.SST.get(0).send(editServerSend.getText().toString());
+                        }
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send(editServerSend.getText().toString());
                         }
                     });
                     break;
 
-                case R.id.btn_tcpServerGetTime:
-                    long date = tsh.getMydate_local();
-                    Log.i(TAG, "timestamp: "+date);
-                    txtTime.setText(String.valueOf(date));
-                    break;
-                case R.id.btn_tcpServerSendTime:
-                    long dates = tsh.getMydate();
-                    Message messagetime = Message.obtain();
-                    messagetime.what = 4;
-                    messagetime.obj = String.valueOf(dates);
-                    myHandler.sendMessage(messagetime);
+                case R.id.btn_tcpServerCheckTime:
+                    Message messagecheck = Message.obtain();
+                    messagecheck.what = 1;
+                    messagecheck.obj = "checktime";
+                    myHandler.sendMessage(messagecheck);
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpServer.SST.get(0).send("time:"+txtTime.getText().toString());
+                            tcpServer1.SST.get(0).send("Timecheck");
+                        }
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send("Timecheck");
                         }
                     });
                     break;
+
                 case R.id.btn_tcpServerCalTime:
-                    long diff = tsh.calcul_diff();
+                    long diff = tsh.calcul_client_diff();
                     Message messagediff = Message.obtain();
                     messagediff.what = 3;
                     messagediff.obj = String.valueOf(diff);
                     myHandler.sendMessage(messagediff);
                     break;
-                case R.id.btn_tcpServerTimecorrect:
-                    String cor = editTimeCorrect.getText().toString();
-                    long corr = Long.parseLong(cor);
-                    tsh.setCorrect(corr);
-                    break;
-                case R.id.btn_tcpServerControlAudio:
-                    //第一次按监听键
-                    if(!isAudioRun && isfirstListen){
-                        audioHelper.startRecord();
-                        audioListenThread.start();
-                        isfirstListen = false;
-                    }else if(!isAudioRun && !isfirstListen){
-                        //第二次
-                        audioHelper.startRecord();
-                        synchronized (lock){
-                            lock.notify();
+
+                case R.id.btn_tcpServerSendTime:
+                    long diff1 = tsh.calcul_client_diff();
+                    Message messagetime = Message.obtain();
+                    messagetime.what = 4;
+                    messagetime.obj = String.valueOf(diff1);
+                    final String diff_s= String.valueOf(diff1);
+                    myHandler.sendMessage(messagetime);
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer1.SST.get(0).send("time: [port1]-[port2]= " + diff_s);
                         }
-                    } else {
-                        //再按开始
-                        audioHelper.stopRecord();
-                        needStop = true;
-                    }
-                    isAudioRun = !isAudioRun;
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s);
+                        }
+                    });
                     break;
+
+
             }
         }
     }
 
     private int getHost(String msg){
         if (msg.equals("")){
-            msg = "1234";
+            msg = "1233";
         }
         return Integer.parseInt(msg);
     }
@@ -297,6 +368,7 @@ public class FuncTcpServer extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Log.i(TAG,"crash check1");
         setContentView(R.layout.tcp_server);
         context = this;
         bindID();
@@ -318,11 +390,9 @@ public class FuncTcpServer extends Activity {
         btnCleanServerSend.setOnClickListener(myBtnClicker);
         btnServerRandom.setOnClickListener(myBtnClicker);
         btnServerSend.setOnClickListener(myBtnClicker);
-        btnGetTime.setOnClickListener(myBtnClicker);
+        btnCheckTime.setOnClickListener(myBtnClicker);
         btnSendTime.setOnClickListener(myBtnClicker);
         btnCalTime.setOnClickListener(myBtnClicker);
-        btnTimeCorrect.setOnClickListener(myBtnClicker);
-        btnControlAudio.setOnClickListener(myBtnClicker);
     }
 
     private void bindID() {
@@ -332,20 +402,18 @@ public class FuncTcpServer extends Activity {
         btnCleanServerSend = (Button) findViewById(R.id.btn_tcpCleanServerSend);
         btnServerRandom = (Button) findViewById(R.id.btn_tcpServerRandomID);
         btnServerSend = (Button) findViewById(R.id.btn_tcpServerSend);
-        btnGetTime = (Button) findViewById(R.id.btn_tcpServerGetTime);
+        btnCheckTime = (Button) findViewById(R.id.btn_tcpServerCheckTime);
         btnSendTime = (Button) findViewById(R.id.btn_tcpServerSendTime);
         btnCalTime = (Button) findViewById(R.id.btn_tcpServerCalTime);
-        btnTimeCorrect = (Button) findViewById(R.id.btn_tcpServerTimecorrect);
         txtRcv = (TextView) findViewById(R.id.txt_ServerRcv);
         txtSend = (TextView) findViewById(R.id.txt_ServerSend);
         txtServerIp = (TextView) findViewById(R.id.txt_Server_Ip);
+        txtTime1 = (TextView) findViewById(R.id.txt_timestamp1);
+        txtTime2 = (TextView) findViewById(R.id.txt_timestamp2);
         editServerID = (EditText) findViewById(R.id.edit_Server_ID);
         editServerSend = (EditText) findViewById(R.id.edit_tcpClientSend);
-        editServerPort = (EditText)findViewById(R.id.edit_Server_Port);
-        editTimeCorrect = (EditText) findViewById(R.id.edit_Server_Timecorrect);
-        txtTime = (TextView) findViewById(R.id.txt_timestamp);
-        btnControlAudio = (Button)findViewById(R.id.btn_tcpServerControlAudio);
-        txtVolume = (TextView) findViewById(R.id.txt_tcpServerVolumeShow);
+        editServerPort1 = (EditText)findViewById(R.id.edit_Server_Port1);
+        editServerPort2 = (EditText)findViewById(R.id.edit_Server_Port2);
     }
 
     /**

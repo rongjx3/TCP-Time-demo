@@ -40,7 +40,7 @@ public class FuncTcpClient extends Activity {
     @SuppressLint("StaticFieldLeak")
     public static Context context ;
     private Button btnStartClient,btnCloseClient, btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientRandom;
-    private Button btnGetTime, btnSendTime, btnCalTime, btnTimeCorrect;
+    private Button btnGetTime, btnSendTime,btnTimeCorrect;
     private TextView txtRcv,txtSend,txtTime;
     private EditText editClientSend,editClientID, editClientPort,editClientIp,editTimeCorrect;
     private Button btnControlAudio;
@@ -121,7 +121,7 @@ public class FuncTcpClient extends Activity {
                     txtSend.setText("");
                     break;
                 case R.id.btn_tcpClientRandomID:
-                    editClientID.setText("Client");
+                    editClientID.setText("Client"+editClientPort.getText().toString());
                     break;
                 case R.id.btn_tcpClientSend:
                     Message message = Message.obtain();
@@ -131,7 +131,7 @@ public class FuncTcpClient extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpClient.send(editClientSend.getText().toString());
+                            tcpClient.send(editClientID.getText().toString() + ":" + editClientSend.getText().toString());
                         }
                     });
                     break;
@@ -140,7 +140,12 @@ public class FuncTcpClient extends Activity {
                     long date = tsh.getMydate_local();
                     Log.i(TAG, "timestamp: "+date);
                     txtTime.setText(String.valueOf(date));
+                    Message messagetime1 = Message.obtain();
+                    messagetime1.what = 3;
+                    messagetime1.obj = String.valueOf(date);
+                    myHandler.sendMessage(messagetime1);
                     break;
+
                 case R.id.btn_tcpClientSendTime:
                     long dates = tsh.getMydate();
                     Message messagetime = Message.obtain();
@@ -154,13 +159,7 @@ public class FuncTcpClient extends Activity {
                         }
                     });
                     break;
-                case R.id.btn_tcpClientCalTime:
-                    long diff = tsh.calcul_diff();
-                    Message messagediff = Message.obtain();
-                    messagediff.what = 3;
-                    messagediff.obj = String.valueOf(diff);
-                    myHandler.sendMessage(messagediff);
-                    break;
+
                 case R.id.btn_tcpClientTimecorrect:
                     String cor = editTimeCorrect.getText().toString();
                     long corr = Long.parseLong(cor);
@@ -199,36 +198,50 @@ public class FuncTcpClient extends Activity {
         @Override
         public void handleMessage(Message msg) {
             if (mActivity != null){
+                String mess;
                 switch (msg.what){
                     case 1:
-                        String mess = msg.obj.toString();
-                        if(mess.length()>=5) {
-                            String sta = mess.substring(0, 5);
-                            Log.i(TAG, "substring : " + sta);
-                            if (sta.equals("time:")) {
-                                String mun = mess.substring(5, mess.length()-1);
-                                long ot = Long.parseLong(mun);
-                                txtSend.append("对方时间戳："+mun+"\n");
-                                tsh.setOtherdate(ot);
-                            } else {
-                                txtRcv.append("对方："+msg.obj.toString());
-                            }
-                        }
-                        else
+                        mess = msg.obj.toString();
+                        String t = mess.substring(0, mess.length()-1);
+                        if (t.equals("Timecheck")) {
+                            long date = tsh.getMydate_local();
+                            Log.i(TAG, "timestamp: "+date);
+                            txtTime.setText(String.valueOf(date));
+                            txtSend.append("时间戳矫正中:"+date+"\n");
+                            exec.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tcpClient.send("time:"+txtTime.getText().toString());
+                                }
+                            });
+                        }else
                         {
-                            txtRcv.append("对方："+msg.obj.toString());
+                            if(mess.length()>=5) {
+                                String sta = mess.substring(0, 5);
+                                Log.i(TAG, "substring : " + sta);
+                                if (sta.equals("time:")) {
+                                    String result = mess.substring(5, mess.length()-1);
+                                    txtSend.append("差值结果："+result+"\n");
+                                } else {
+                                    txtRcv.append("服务器端:"+msg.obj.toString());
+                                }
+                            }
+                            else
+                            {
+                                txtRcv.append("服务器端:"+msg.obj.toString());
+                            }
                         }
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append("你："+msg.obj.toString()+"\n");
+                        txtRcv.append(editClientID.getText().toString()+"（你）:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
-                        txtSend.append("时间戳差值（你的-对方的）："+msg.obj.toString()+"ms\n");
+                        txtSend.append("获取时间戳:"+msg.obj.toString()+"\n");
                         break;
                     case 4:
-                        txtSend.append("你的时间戳："+msg.obj.toString()+"\n");
+                        txtSend.append("发送时间戳:"+msg.obj.toString()+"\n");
                         break;
                 }
             }
@@ -246,12 +259,12 @@ public class FuncTcpClient extends Activity {
             if(mActivity != null){
                 double db = (double) msg.obj;
                 txtVolume.setText(String.valueOf(db));
-                if(db > 78){
+                if(db > 70){
                     needPause = true;
                     Message msg1 = myHandler.obtainMessage();
                     long dates = tsh.getMydate_local();
                     Log.d(TAG, "handleMessage: "+tsh.getMydate());
-                    msg1.what = 4;
+                    msg1.what = 3;
                     msg1.obj = String.valueOf(dates);
                     myHandler.sendMessage(msg1);
                     txtTime.setText(String.valueOf(dates));
@@ -307,7 +320,6 @@ public class FuncTcpClient extends Activity {
         btnClientSend = (Button) findViewById(R.id.btn_tcpClientSend);
         btnGetTime = (Button) findViewById(R.id.btn_tcpClientGetTime);
         btnSendTime = (Button) findViewById(R.id.btn_tcpClientSendTime);
-        btnCalTime = (Button) findViewById(R.id.btn_tcpClientCalTime);
         btnTimeCorrect = (Button) findViewById(R.id.btn_tcpClientTimecorrect);
         editClientPort = (EditText) findViewById(R.id.edit_tcpClientPort);
         editClientIp = (EditText) findViewById(R.id.edit_tcpClientIp);
@@ -329,7 +341,6 @@ public class FuncTcpClient extends Activity {
         btnClientSend.setOnClickListener(myBtnClicker);
         btnGetTime.setOnClickListener(myBtnClicker);
         btnSendTime.setOnClickListener(myBtnClicker);
-        btnCalTime.setOnClickListener(myBtnClicker);
         btnTimeCorrect.setOnClickListener(myBtnClicker);
         btnControlAudio.setOnClickListener(myBtnClicker);
     }

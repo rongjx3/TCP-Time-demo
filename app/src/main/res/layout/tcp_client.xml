@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="5"
+    android:weightSum="6"
     >
 
     <LinearLayout
@@ -73,28 +73,32 @@
             android:layout_height="wrap_content"
             android:text="断开"
             android:id="@+id/btn_tcpClientClose"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清除消息区"
-            android:id="@+id/btn_tcpCleanClientRecv"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清除时间戳区"
-            android:id="@+id/btn_tcpCleanClientSend"/>
+
+
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:layout_weight="2">
-        <TextView
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="bottom"
-            android:text="消息区：" />
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:text="消息区：" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清除消息区"
+                android:id="@+id/btn_tcpCleanClientRecv"/>
+
+        </LinearLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="5"
@@ -128,13 +132,22 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="2">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="时间戳区：" />
-
+        android:layout_weight="3">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="时间戳区：" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清除时间戳区"
+                android:id="@+id/btn_tcpCleanClientSend"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/txt_ClientSend"
             android:layout_width="match_parent"
@@ -170,14 +183,8 @@
                 android:layout_gravity="right"
                 android:id="@+id/btn_tcpClientSendTime"
                 android:text="发送"/>
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:id="@+id/btn_tcpClientCalTime"
-                android:text="差值"/>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
