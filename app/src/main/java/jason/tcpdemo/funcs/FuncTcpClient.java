@@ -68,7 +68,9 @@ public class FuncTcpClient extends Activity {
                 }
                 if(needPause){
                     try{
-                        Thread.sleep(1500);
+                        audioHelper.stopRecord();
+                        Thread.sleep(2000);
+                        audioHelper.startRecord();
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
