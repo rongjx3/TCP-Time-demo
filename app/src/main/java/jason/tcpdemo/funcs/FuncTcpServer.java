@@ -132,7 +132,7 @@ public class FuncTcpServer extends Activity {
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append(editServerID.getText().toString()+"（你）:"+msg.obj.toString()+"\n");
+                        txtRcv.append(editServerID.getText().toString()+"[你]:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
@@ -146,7 +146,17 @@ public class FuncTcpServer extends Activity {
                         if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring : " + sta);
-                            if (sta.equals("time:")) {
+                            if (sta.equals("[新的客户"))
+                            {
+                                exec.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tcpServer1.SST.get(0).send("[已作为 port1 连入服务器]");
+                                    }
+                                });
+                                txtRcv.append("[port1]"+msg.obj.toString());
+                            }
+                            else if (sta.equals("time:")) {
                                 String mun = mess.substring(5, mess.length()-1);
                                 long ot = Long.parseLong(mun);
                                 txtSend.append("[port1]时间戳："+mun+"\n");
@@ -167,7 +177,17 @@ public class FuncTcpServer extends Activity {
                         if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring : " + sta);
-                            if (sta.equals("time:")) {
+                            if (sta.equals("[新的客户"))
+                            {
+                                exec.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tcpServer2.SST.get(0).send("[已作为 port2 连入服务器]");
+                                    }
+                                });
+                                txtRcv.append("[port2]"+msg.obj.toString());
+                            }
+                            else if (sta.equals("time:")) {
                                 String mun = mess.substring(5, mess.length()-1);
                                 long ot = Long.parseLong(mun);
                                 txtSend.append("[port2]时间戳："+mun+"\n");

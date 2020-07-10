@@ -225,18 +225,18 @@ public class FuncTcpClient extends Activity {
                                     String result = mess.substring(5, mess.length()-1);
                                     txtSend.append("差值结果："+result+"\n");
                                 } else {
-                                    txtRcv.append("服务器端:"+msg.obj.toString());
+                                    txtRcv.append("[服务器端]:"+msg.obj.toString());
                                 }
                             }
                             else
                             {
-                                txtRcv.append("服务器端:"+msg.obj.toString());
+                                txtRcv.append("[服务器端]:"+msg.obj.toString());
                             }
                         }
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append(editClientID.getText().toString()+"（你）:"+msg.obj.toString()+"\n");
+                        txtRcv.append(editClientID.getText().toString()+"[你]:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
@@ -260,7 +260,8 @@ public class FuncTcpClient extends Activity {
         public void handleMessage(@NonNull Message msg) {
             if(mActivity != null){
                 double db = (double) msg.obj;
-                txtVolume.setText(String.valueOf(db));
+                String dbs = String.format("%.2f", db);
+                txtVolume.setText(dbs);
                 if(db > 70){
                     needPause = true;
                     Message msg1 = myHandler.obtainMessage();
