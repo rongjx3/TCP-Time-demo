@@ -216,7 +216,39 @@ public class FuncTcpClient extends Activity {
                                     tcpClient.send("time:"+txtTime.getText().toString());
                                 }
                             });
-                        }else
+                        }
+                        else if (t.equals("ListenTime")) {
+                            txtSend.append("远程监听请求\n");
+                            //第一次按监听键
+                            if(!isAudioRun && isfirstListen){
+                                audioHelper.startRecord();
+                                audioListenThread.start();
+                                isfirstListen = false;
+                            }else if(!isAudioRun && !isfirstListen){
+                                //第二次
+                                audioHelper.startRecord();
+                                synchronized (lock){
+                                    lock.notify();
+                                }
+                            } else {
+                                //再按开始
+                                audioHelper.stopRecord();
+                                needStop = true;
+                            }
+                            isAudioRun = !isAudioRun;
+                        }
+                        else if (t.equals("AskTime")) {
+                            txtSend.append("获取时间戳请求\n");
+                            long dates = tsh.getMydate();
+                            txtSend.append("发送时间戳:"+dates+"\n");
+                            exec.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tcpClient.send("time:"+txtTime.getText().toString());
+                                }
+                            });
+                        }
+                        else
                         {
                             if(mess.length()>=5) {
                                 String sta = mess.substring(0, 5);

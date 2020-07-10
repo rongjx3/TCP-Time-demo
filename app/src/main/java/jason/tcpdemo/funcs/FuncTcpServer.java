@@ -40,7 +40,7 @@ import static android.content.ContentValues.TAG;
 
 public class FuncTcpServer extends Activity {
     private Button btnStartServer,btnCloseServer, btnCleanServerSend, btnCleanServerRcv,btnServerSend,btnServerRandom;
-    private Button btnCheckTime, btnSendTime, btnCalTime;
+    private Button btnCheckTime, btnSendTime, btnCalTime, btnListenTime, btnAskTime;
     private TextView txtRcv,txtSend,txtServerIp,txtTime1, txtTime2;
     private EditText editServerSend,editServerID, editServerPort1,editServerPort2;
     private AudioHelper audioHelper = new AudioHelper();
@@ -49,6 +49,7 @@ public class FuncTcpServer extends Activity {
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
+    private boolean isAudioRun = false;
     //private AudioHandler audioHandler = new AudioHandler(this);
     /*private boolean isAudioRun = false;
     private Runnable runnable = new Runnable() {
@@ -364,11 +365,49 @@ public class FuncTcpServer extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s);
+                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s + "ms");
                         }
                     });
                     break;
+                case R.id.btn_tcpServerListenTime:
+                    if(isAudioRun)
+                    {
+                        isAudioRun = false;
+                        btnListenTime.setText("远程监听:OFF");
+                    }
+                    else
+                    {
+                        isAudioRun = true;
+                        btnListenTime.setText("远程监听:ON");
+                    }
 
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer1.SST.get(0).send("ListenTime");
+                        }
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send("ListenTime");
+                        }
+                    });
+                    break;
+                case R.id.btn_tcpServerAskTime:
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer1.SST.get(0).send("AskTime");
+                        }
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send("AskTime");
+                        }
+                    });
+                    break;
 
             }
         }
@@ -409,6 +448,8 @@ public class FuncTcpServer extends Activity {
         btnCheckTime.setOnClickListener(myBtnClicker);
         btnSendTime.setOnClickListener(myBtnClicker);
         btnCalTime.setOnClickListener(myBtnClicker);
+        btnListenTime.setOnClickListener(myBtnClicker);
+        btnAskTime.setOnClickListener(myBtnClicker);
     }
 
     private void bindID() {
@@ -421,6 +462,8 @@ public class FuncTcpServer extends Activity {
         btnCheckTime = (Button) findViewById(R.id.btn_tcpServerCheckTime);
         btnSendTime = (Button) findViewById(R.id.btn_tcpServerSendTime);
         btnCalTime = (Button) findViewById(R.id.btn_tcpServerCalTime);
+        btnListenTime = (Button) findViewById(R.id.btn_tcpServerListenTime);
+        btnAskTime = (Button) findViewById(R.id.btn_tcpServerAskTime);
         txtRcv = (TextView) findViewById(R.id.txt_ServerRcv);
         txtSend = (TextView) findViewById(R.id.txt_ServerSend);
         txtServerIp = (TextView) findViewById(R.id.txt_Server_Ip);
