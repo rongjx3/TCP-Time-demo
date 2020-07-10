@@ -306,10 +306,6 @@ public class FuncTcpServer extends Activity {
                     break;
 
                 case R.id.btn_tcpServerCheckTime:
-                    Message messagecheck = Message.obtain();
-                    messagecheck.what = 1;
-                    messagecheck.obj = "checktime";
-                    myHandler.sendMessage(messagecheck);
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -342,7 +338,7 @@ public class FuncTcpServer extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpServer1.SST.get(0).send("time: [port1]-[port2]= " + diff_s);
+                            tcpServer1.SST.get(0).send("time: [port1]-[port2]= " + diff_s + "ms");
                         }
                     });
                     exec.execute(new Runnable() {
