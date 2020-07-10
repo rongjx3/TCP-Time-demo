@@ -364,7 +364,7 @@ public class FuncTcpServer extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s);
+                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s + "ms");
                         }
                     });
                     break;
