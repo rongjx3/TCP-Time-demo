@@ -88,12 +88,6 @@ public class TcpServer implements Runnable{
             ip = socket.getInetAddress().toString();
             Log.i(TAG, "ServerSocketThread:检测到新的客户端联入,ip:" + ip);
 
-            String in = "[新的客户端连入]\n";
-            Intent intent =new Intent();
-            intent.setAction(name);
-            intent.putExtra(name,in);
-            FuncTcpServer.context.sendBroadcast(intent);//将消息发送给主界面
-
             try {
                 socket.setSoTimeout(5000);
                 os = socket.getOutputStream();
@@ -103,6 +97,8 @@ public class TcpServer implements Runnable{
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
         }
 
         public void send(String msg){
@@ -116,6 +112,13 @@ public class TcpServer implements Runnable{
             String rcvMsg;
             int rcvLen;
             SST.add(this);
+
+            String in = "[新的客户端连入]\n";
+            Intent intent_s =new Intent();
+            intent_s.setAction(name);
+            intent_s.putExtra(name,in);
+            FuncTcpServer.context.sendBroadcast(intent_s);//将消息发送给主界面
+
             while (isRun && !socket.isClosed() && !socket.isInputShutdown()){
                 try {
                     if ((rcvLen = is.read(buff)) != -1 ){
