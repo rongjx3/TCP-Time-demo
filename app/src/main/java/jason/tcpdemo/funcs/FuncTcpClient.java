@@ -170,17 +170,20 @@ public class FuncTcpClient extends Activity {
                 case R.id.btn_tcpClientControlAudio:
                     //第一次按监听键
                     if(!isAudioRun && isfirstListen){
+                        btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
                         audioListenThread.start();
                         isfirstListen = false;
                     }else if(!isAudioRun && !isfirstListen){
                         //第二次
+                        btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
                         synchronized (lock){
                             lock.notify();
                         }
                     } else {
                         //再按开始
+                        btnControlAudio.setText("监听声音:OFF");
                         audioHelper.stopRecord();
                         needStop = true;
                     }
