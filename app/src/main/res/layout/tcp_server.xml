@@ -86,6 +86,11 @@
             android:layout_height="wrap_content"
             android:text="关闭"
             android:id="@+id/btn_tcpServerClose"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="连接测试"
+            android:id="@+id/btn_tcpServerTest"/>
 
 
     </LinearLayout>
@@ -212,14 +217,8 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:id="@+id/btn_tcpServerCalTime"
-                android:text="差值"/>
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:id="@+id/btn_tcpServerSendTime"
-                android:text="发送结果"/>
+                android:text="计算并发送结果"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -233,14 +232,14 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:id="@+id/btn_tcpServerListenTime"
-                android:text="远程监听:OFF"/>
+                android:text="远程开关:OFF"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:id="@+id/btn_tcpServerAskTime"
-                android:text="获取客户时间戳"/>
+                android:text="获取客户记录时间"/>
 
         </LinearLayout>
 

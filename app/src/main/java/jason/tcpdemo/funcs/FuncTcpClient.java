@@ -265,6 +265,15 @@ public class FuncTcpClient extends Activity {
                                 }
                             });
                         }
+                        else if (t.equals("conTest")) {
+                            txtRcv.append("[服务器端]:连接测试\n");
+                            exec.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tcpClient.send("连接正常");
+                                }
+                            });
+                        }
                         else
                         {
                             if(mess.length()>=5) {
@@ -273,7 +282,20 @@ public class FuncTcpClient extends Activity {
                                 if (sta.equals("time:")) {
                                     String result = mess.substring(5, mess.length()-1);
                                     txtSend.append("差值结果："+result+"\n");
-                                } else {
+                                }
+                                else if(sta.equals("cort:"))
+                                {
+                                    String add = mess.substring(5, mess.length()-1);
+                                    txtSend.append("时间戳矫正："+add+"\n");
+                                    long addo = Long.parseLong(add);
+
+                                    String cor = editTimeCorrect.getText().toString();
+                                    long corr = Long.parseLong(cor);
+
+                                    long result = corr + addo;
+                                    editTimeCorrect.setText(String.valueOf(result));
+                                    tsh.setCorrect(result);
+                                }else {
                                     txtRcv.append("[服务器端]:"+msg.obj.toString());
                                 }
                             }
