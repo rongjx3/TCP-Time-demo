@@ -58,6 +58,8 @@ public class FuncTcpClient extends Activity {
     private boolean needStop = false;
     private boolean isfirstListen = true;
     private Object lock = new Object();
+    private long lastThresholdTimeStamp = System.currentTimeMillis();
+    private long curThresholdTimeStamp = 0;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -79,7 +81,16 @@ public class FuncTcpClient extends Activity {
                 if(isAudioRun){
                     Message msg = audioHandler.obtainMessage();
                     msg.obj = audioHelper.getVolume();
-                    audioHandler.sendMessage(msg);
+                    if((double)msg.obj > 70){
+                        curThresholdTimeStamp = System.currentTimeMillis();
+                        if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
+                            audioHandler.sendMessage(msg);
+                        }
+                        lastThresholdTimeStamp = curThresholdTimeStamp;
+                    } else {
+                        audioHandler.sendMessage(msg);
+                    }
+
                 }
                 Log.d(TAG, "run: "+Thread.currentThread().getId());
             }
