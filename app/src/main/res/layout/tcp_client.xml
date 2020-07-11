@@ -200,10 +200,10 @@
                 />
             <Button
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="监听声音"
+                android:text="监听声音:OFF"
                 android:id="@+id/btn_tcpClientControlAudio"/>
         </LinearLayout>
 

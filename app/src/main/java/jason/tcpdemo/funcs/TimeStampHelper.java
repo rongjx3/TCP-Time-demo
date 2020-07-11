@@ -36,7 +36,7 @@ public class TimeStampHelper {
 
     //获取本地时间戳
     public long getMydate_local() {
-        SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        /*SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dff.setTimeZone(TimeZone.getTimeZone("GMT+08"));
         String ee = dff.format(new Date());
         Date date = null;
@@ -44,8 +44,8 @@ public class TimeStampHelper {
             date = dff.parse(ee);
         } catch (ParseException e) {
             e.printStackTrace();
-        }
-        long ts = date.getTime();
+        }*/
+        long ts = System.currentTimeMillis();
         mydate = ts + correct;
 
         return mydate;
