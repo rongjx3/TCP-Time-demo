@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="6"
+    android:weightSum="7"
     >
 
     <LinearLayout
@@ -52,48 +52,28 @@
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ID(英文或数字):"/>
-            <EditText
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:id="@+id/edit_Server_ID"/>
+            android:layout_height="wrap_content"
+            >
             <Button
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="默认ID"
-                android:id="@+id/btn_tcpServerRandomID"/>
+                android:layout_height="wrap_content"
+                android:text="开启"
+                android:id="@+id/btn_tcpServerConn"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="关闭"
+                android:id="@+id/btn_tcpServerClose"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="连接测试"
+                android:id="@+id/btn_tcpServerTest"/>
+
         </LinearLayout>
 
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="开启"
-            android:id="@+id/btn_tcpServerConn"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="关闭"
-            android:id="@+id/btn_tcpServerClose"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="连接测试"
-            android:id="@+id/btn_tcpServerTest"/>
 
-
-    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -150,7 +130,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="3">
+        android:layout_weight="4">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -173,7 +153,7 @@
             android:id="@+id/txt_ServerSend"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="7"
+            android:layout_weight="9"
             android:background="@android:color/holo_purple" />
 
 
@@ -197,6 +177,28 @@
                 android:id="@+id/txt_timestamp2"
                 android:text="[port2]时间戳"
                 android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="2">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="声音阈值:"/>
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="70"
+                android:id="@+id/edit_tcpServerVoiceLimit"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="设置客户端声音阈值"
+                android:id="@+id/btn_tcpServerVoiceLimit"/>
         </LinearLayout>
 
         <LinearLayout

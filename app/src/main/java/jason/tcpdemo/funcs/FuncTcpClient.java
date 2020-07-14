@@ -39,10 +39,10 @@ public class FuncTcpClient extends Activity {
     private String TAG = "FuncTcpClient";
     @SuppressLint("StaticFieldLeak")
     public static Context context ;
-    private Button btnStartClient,btnCloseClient, btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientRandom;
-    private Button btnGetTime, btnSendTime,btnTimeCorrect;
+    private Button btnStartClient,btnCloseClient, btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientVoice;
+    private Button btnGetTime, btnSendTime, btnTimeCorrect, btnLock;
     private TextView txtRcv,txtSend,txtTime;
-    private EditText editClientSend,editClientID, editClientPort,editClientIp,editTimeCorrect;
+    private EditText editClientSend,editClientVoice, editClientPort,editClientIp,editTimeCorrect;
     private Button btnControlAudio;
     private TextView txtVolume;
     private AudioHelper audioHelper = new AudioHelper();
@@ -56,10 +56,12 @@ public class FuncTcpClient extends Activity {
     private boolean isAudioRun = false;
     private boolean needPause = false;
     private boolean needStop = false;
+    private boolean isLock = false;
     private boolean isfirstListen = true;
     private Object lock = new Object();
     private long lastThresholdTimeStamp = System.currentTimeMillis();
     private long curThresholdTimeStamp = 0;
+    private double voicelimit = 70;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -81,7 +83,7 @@ public class FuncTcpClient extends Activity {
                 if(isAudioRun){
                     Message msg = audioHandler.obtainMessage();
                     msg.obj = audioHelper.getVolume();
-                    if((double)msg.obj > 70){
+                    if((double)msg.obj > voicelimit){
                         curThresholdTimeStamp = System.currentTimeMillis();
                         if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
                             audioHandler.sendMessage(msg);
@@ -116,6 +118,7 @@ public class FuncTcpClient extends Activity {
                 case R.id.btn_tcpClientConn:
                     Log.i(TAG, "onClick: 开始");
                     btnStartClient.setEnabled(false);
+                    btnLock.setEnabled(true);
                     btnCloseClient.setEnabled(true);
                     btnClientSend.setEnabled(true);
                     tcpClient = new TcpClient(editClientIp.getText().toString(),getPort(editClientPort.getText().toString()));
@@ -124,6 +127,7 @@ public class FuncTcpClient extends Activity {
                 case R.id.btn_tcpClientClose:
                     tcpClient.closeSelf();
                     btnStartClient.setEnabled(true);
+                    btnLock.setEnabled(false);
                     btnCloseClient.setEnabled(false);
                     btnClientSend.setEnabled(false);
                     break;
@@ -133,8 +137,10 @@ public class FuncTcpClient extends Activity {
                 case R.id.btn_tcpCleanClientSend:
                     txtSend.setText("");
                     break;
-                case R.id.btn_tcpClientRandomID:
-                    editClientID.setText("Client"+editClientPort.getText().toString());
+                case R.id.btn_tcpClientVoiceLimit:
+                    String voi = editClientVoice.getText().toString();
+                    double voic = Double.parseDouble(voi);
+                    voicelimit = voic;
                     break;
                 case R.id.btn_tcpClientSend:
                     Message message = Message.obtain();
@@ -144,7 +150,7 @@ public class FuncTcpClient extends Activity {
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
-                            tcpClient.send(editClientID.getText().toString() + ":" + editClientSend.getText().toString());
+                            tcpClient.send(":" + editClientSend.getText().toString());
                         }
                     });
                     break;
@@ -200,6 +206,35 @@ public class FuncTcpClient extends Activity {
                     }
                     isAudioRun = !isAudioRun;
                     break;
+                case R.id.btn_tcpClientLock:
+                    if(isLock)
+                    {
+                        isLock = false;
+                        btnLock.setText("锁定模式:OFF");
+                        btnCloseClient.setEnabled(true);
+                        btnCleanClientRcv.setEnabled(true);
+                        btnCleanClientSend.setEnabled(true);
+                        btnClientVoice.setEnabled(true);
+                        btnClientSend.setEnabled(true);
+                        btnGetTime.setEnabled(true);
+                        btnSendTime.setEnabled(true);
+                        btnTimeCorrect.setEnabled(true);
+                        btnControlAudio.setEnabled(true);
+                    }
+                    else
+                    {
+                        isLock = true;
+                        btnLock.setText("锁定模式:ON");
+                        btnCloseClient.setEnabled(false);
+                        btnCleanClientRcv.setEnabled(false);
+                        btnCleanClientSend.setEnabled(false);
+                        btnClientVoice.setEnabled(false);
+                        btnClientSend.setEnabled(false);
+                        btnGetTime.setEnabled(false);
+                        btnSendTime.setEnabled(false);
+                        btnTimeCorrect.setEnabled(false);
+                        btnControlAudio.setEnabled(false);
+                    }
             }
         }
     }
@@ -295,6 +330,15 @@ public class FuncTcpClient extends Activity {
                                     long result = corr + addo;
                                     editTimeCorrect.setText(String.valueOf(result));
                                     tsh.setCorrect(result);
+                                }
+                                else if(sta.equals("setv:"))
+                                {
+                                    String voi = mess.substring(5, mess.length()-1);
+                                    txtSend.append("设置音量阈值："+voi+"\n");
+                                    double voic = Double.parseDouble(voi);
+
+                                    editClientVoice.setText(String.valueOf(voic));
+                                    voicelimit = voic;
                                 }else {
                                     txtRcv.append("[服务器端]:"+msg.obj.toString());
                                 }
@@ -307,7 +351,7 @@ public class FuncTcpClient extends Activity {
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append(editClientID.getText().toString()+"[你]:"+msg.obj.toString()+"\n");
+                        txtRcv.append("[你]:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
@@ -333,7 +377,7 @@ public class FuncTcpClient extends Activity {
                 double db = (double) msg.obj;
                 String dbs = String.format("%.2f", db);
                 txtVolume.setText(dbs);
-                if(db > 70){
+                if(db > voicelimit){
                     needPause = true;
                     Message msg1 = myHandler.obtainMessage();
                     long dates = tsh.getMydate_local();
@@ -390,7 +434,7 @@ public class FuncTcpClient extends Activity {
         btnCloseClient = (Button) findViewById(R.id.btn_tcpClientClose);
         btnCleanClientRcv = (Button) findViewById(R.id.btn_tcpCleanClientRecv);
         btnCleanClientSend = (Button) findViewById(R.id.btn_tcpCleanClientSend);
-        btnClientRandom = (Button) findViewById(R.id.btn_tcpClientRandomID);
+        btnClientVoice = (Button) findViewById(R.id.btn_tcpClientVoiceLimit);
         btnClientSend = (Button) findViewById(R.id.btn_tcpClientSend);
         btnGetTime = (Button) findViewById(R.id.btn_tcpClientGetTime);
         btnSendTime = (Button) findViewById(R.id.btn_tcpClientSendTime);
@@ -398,25 +442,27 @@ public class FuncTcpClient extends Activity {
         editClientPort = (EditText) findViewById(R.id.edit_tcpClientPort);
         editClientIp = (EditText) findViewById(R.id.edit_tcpClientIp);
         editClientSend = (EditText) findViewById(R.id.edit_tcpClientSend);
-        editClientID = (EditText) findViewById(R.id.edit_tcpClientID);
+        editClientVoice = (EditText) findViewById(R.id.edit_tcpClientVoiceLimit);
         editTimeCorrect = (EditText) findViewById(R.id.edit_Client_Timecorrect);
         txtRcv = (TextView) findViewById(R.id.txt_ClientRcv);
         txtSend = (TextView) findViewById(R.id.txt_ClientSend);
         txtTime = (TextView) findViewById(R.id.txt_clienttimestamp);
         btnControlAudio = (Button)findViewById(R.id.btn_tcpClientControlAudio);
         txtVolume = (TextView) findViewById(R.id.txt_tcpClientVolumeShow);
+        btnLock = (Button)findViewById(R.id.btn_tcpClientLock);
     }
     private void bindListener(){
         btnStartClient.setOnClickListener(myBtnClicker);
         btnCloseClient.setOnClickListener(myBtnClicker);
         btnCleanClientRcv.setOnClickListener(myBtnClicker);
         btnCleanClientSend.setOnClickListener(myBtnClicker);
-        btnClientRandom.setOnClickListener(myBtnClicker);
+        btnClientVoice.setOnClickListener(myBtnClicker);
         btnClientSend.setOnClickListener(myBtnClicker);
         btnGetTime.setOnClickListener(myBtnClicker);
         btnSendTime.setOnClickListener(myBtnClicker);
         btnTimeCorrect.setOnClickListener(myBtnClicker);
         btnControlAudio.setOnClickListener(myBtnClicker);
+        btnLock.setOnClickListener(myBtnClicker);
     }
     private void bindReceiver(){
         IntentFilter intentFilter = new IntentFilter("tcpClientReceiver");
@@ -425,6 +471,6 @@ public class FuncTcpClient extends Activity {
     private void Ini(){
         btnCloseClient.setEnabled(false);
         btnClientSend.setEnabled(false);
-
+        btnLock.setEnabled(false);
     }
 }

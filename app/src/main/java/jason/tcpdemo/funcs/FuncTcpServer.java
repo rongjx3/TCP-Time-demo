@@ -40,10 +40,10 @@ import static android.content.ContentValues.TAG;
  */
 
 public class FuncTcpServer extends Activity {
-    private Button btnStartServer,btnCloseServer, btnCleanServerSend, btnCleanServerRcv,btnServerSend,btnServerRandom;
+    private Button btnStartServer,btnCloseServer, btnCleanServerSend, btnCleanServerRcv,btnServerSend,btnServerVoice;
     private Button btnTest, btnCheckTime, btnCalTime, btnListenTime, btnAskTime;
     private TextView txtRcv,txtSend,txtServerIp,txtTime1, txtTime2;
-    private EditText editServerSend,editServerID, editServerPort1,editServerPort2;
+    private EditText editServerSend,editServerVoice, editServerPort1,editServerPort2;
     private AudioHelper audioHelper = new AudioHelper();
     private static TcpServer tcpServer1 = null, tcpServer2 = null;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
@@ -135,7 +135,7 @@ public class FuncTcpServer extends Activity {
                         break;
                     case 2:
                         //txtSend.append(msg.obj.toString());
-                        txtRcv.append(editServerID.getText().toString()+"[你]:"+msg.obj.toString()+"\n");
+                        txtRcv.append("[你]:"+msg.obj.toString()+"\n");
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
@@ -359,8 +359,27 @@ public class FuncTcpServer extends Activity {
                 case R.id.btn_tcpCleanServerSend:
                     txtSend.setText("");
                     break;
-                case R.id.btn_tcpServerRandomID:
-                    editServerID.setText("Server");
+                case R.id.btn_tcpServerVoiceLimit:
+                    final String voi = editServerVoice.getText().toString();
+                    double voic = Double.parseDouble(voi);
+
+                    Message messagediff = Message.obtain();
+                    messagediff.what = 2;
+                    messagediff.obj = "设置客户端音量阈值："+voi;
+                    myHandler.sendMessage(messagediff);
+
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer1.SST.get(0).send("setv:" + voi);
+                        }
+                    });
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            tcpServer2.SST.get(0).send("setv:" + voi);
+                        }
+                    });
                     break;
                 case R.id.btn_tcpServerSend:
                     Message message = Message.obtain();
@@ -495,7 +514,7 @@ public class FuncTcpServer extends Activity {
         btnCloseServer.setOnClickListener(myBtnClicker);
         btnCleanServerRcv.setOnClickListener(myBtnClicker);
         btnCleanServerSend.setOnClickListener(myBtnClicker);
-        btnServerRandom.setOnClickListener(myBtnClicker);
+        btnServerVoice.setOnClickListener(myBtnClicker);
         btnServerSend.setOnClickListener(myBtnClicker);
         btnCheckTime.setOnClickListener(myBtnClicker);
         btnTest.setOnClickListener(myBtnClicker);
@@ -509,7 +528,7 @@ public class FuncTcpServer extends Activity {
         btnCloseServer = (Button) findViewById(R.id.btn_tcpServerClose);
         btnCleanServerRcv = (Button) findViewById(R.id.btn_tcpCleanServerRecv);
         btnCleanServerSend = (Button) findViewById(R.id.btn_tcpCleanServerSend);
-        btnServerRandom = (Button) findViewById(R.id.btn_tcpServerRandomID);
+        btnServerVoice = (Button) findViewById(R.id.btn_tcpServerVoiceLimit);
         btnServerSend = (Button) findViewById(R.id.btn_tcpServerSend);
         btnCheckTime = (Button) findViewById(R.id.btn_tcpServerCheckTime);
         btnTest = (Button) findViewById(R.id.btn_tcpServerTest);
@@ -521,7 +540,7 @@ public class FuncTcpServer extends Activity {
         txtServerIp = (TextView) findViewById(R.id.txt_Server_Ip);
         txtTime1 = (TextView) findViewById(R.id.txt_timestamp1);
         txtTime2 = (TextView) findViewById(R.id.txt_timestamp2);
-        editServerID = (EditText) findViewById(R.id.edit_Server_ID);
+        editServerVoice = (EditText) findViewById(R.id.edit_tcpServerVoiceLimit);
         editServerSend = (EditText) findViewById(R.id.edit_tcpClientSend);
         editServerPort1 = (EditText)findViewById(R.id.edit_Server_Port1);
         editServerPort2 = (EditText)findViewById(R.id.edit_Server_Port2);
