@@ -41,13 +41,15 @@ public class AudioHelper {
         if(run_status){
             short[] buffer = new short[bufferSize];
             audioRecord.read(buffer, 0, bufferSize);
-            long sum = 0;
+            double sum = 0;
             for (short b : buffer) {
                 sum += Math.abs(b);
             }
             int length = buffer.length;
             sum = sum / (length);
+            double c = 0;
             double db = 20 * Math.log10(sum);
+            Log.d(TAG, "getVolume: "+length);
             return db;
         } else {
             Log.d(TAG, "Did not start recording!");

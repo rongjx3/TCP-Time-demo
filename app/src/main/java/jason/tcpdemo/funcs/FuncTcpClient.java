@@ -62,6 +62,7 @@ public class FuncTcpClient extends Activity {
     private long lastThresholdTimeStamp = System.currentTimeMillis();
     private long curThresholdTimeStamp = 0;
     private double voicelimit = 70;
+    private double maxVolume = 0;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -86,11 +87,19 @@ public class FuncTcpClient extends Activity {
                     if((double)msg.obj > voicelimit){
                         curThresholdTimeStamp = System.currentTimeMillis();
                         if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
+                            if((double)msg.obj > maxVolume){
+                                maxVolume = (double)msg.obj;
+                            }
                             audioHandler.sendMessage(msg);
+
                         }
                         lastThresholdTimeStamp = curThresholdTimeStamp;
                     }else {
+                        if((double)msg.obj > maxVolume){
+                            maxVolume = (double)msg.obj;
+                        }
                         audioHandler.sendMessage(msg);
+
                     }
 
                 }
@@ -187,12 +196,14 @@ public class FuncTcpClient extends Activity {
                 case R.id.btn_tcpClientControlAudio:
                     //第一次按监听键
                     if(!isAudioRun && isfirstListen){
+                        maxVolume = 0;
                         btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
                         audioListenThread.start();
                         isfirstListen = false;
                     }else if(!isAudioRun && !isfirstListen){
                         //第二次
+                        maxVolume = 0;
                         btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
                         synchronized (lock){
@@ -200,9 +211,21 @@ public class FuncTcpClient extends Activity {
                         }
                     } else {
                         //再按开始
+
                         btnControlAudio.setText("监听声音:OFF");
                         audioHelper.stopRecord();
                         needStop = true;
+
+                        Message messagevoi = Message.obtain();
+                        messagevoi.what = 1;
+                        messagevoi.obj = "最大音量："+maxVolume+"\n";
+                        myHandler.sendMessage(messagevoi);
+                        exec.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                tcpClient.send("最大音量:" + maxVolume);
+                            }
+                        });
                     }
                     isAudioRun = !isAudioRun;
                     break;
@@ -270,12 +293,14 @@ public class FuncTcpClient extends Activity {
                             txtSend.append("远程监听请求\n");
                             //第一次按监听键
                             if(!isAudioRun && isfirstListen){
+                                maxVolume = 0;
                                 btnControlAudio.setText("监听声音:ON");
                                 audioHelper.startRecord();
                                 audioListenThread.start();
                                 isfirstListen = false;
                             }else if(!isAudioRun && !isfirstListen){
                                 //第二次
+                                maxVolume = 0;
                                 btnControlAudio.setText("监听声音:ON");
                                 audioHelper.startRecord();
                                 synchronized (lock){
@@ -286,6 +311,17 @@ public class FuncTcpClient extends Activity {
                                 btnControlAudio.setText("监听声音:OFF");
                                 audioHelper.stopRecord();
                                 needStop = true;
+
+                                Message messagevoi = Message.obtain();
+                                messagevoi.what = 1;
+                                messagevoi.obj = "最大音量："+maxVolume+"\n";
+                                myHandler.sendMessage(messagevoi);
+                                exec.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tcpClient.send("最大音量:" + maxVolume);
+                                    }
+                                });
                             }
                             isAudioRun = !isAudioRun;
                         }
