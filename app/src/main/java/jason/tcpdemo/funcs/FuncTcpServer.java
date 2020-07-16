@@ -53,6 +53,8 @@ public class FuncTcpServer extends Activity {
     private TimeStampHelper tsh1 = new TimeStampHelper();
     private TimeStampHelper tsh2 = new TimeStampHelper();
     private boolean isAudioRun = false;
+    private boolean isOverError = false;
+    private long last_over1 = 0,last_over2 = 0;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
     private boolean IsUseMax = true;
@@ -195,6 +197,11 @@ public class FuncTcpServer extends Activity {
                                             +"最大值时间差[port1-port2]："+diffMax+"\n"
                                             +"[port1]阈值时间戳："+overTempT+"\n"
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
+                                    if(overTempT == last_over1 || overTempT == 0)
+                                    {
+                                        isOverError = true;
+                                    }
+                                    last_over1 = overTempT;
 
                                     if(IsUseMax)
                                     {
@@ -204,9 +211,18 @@ public class FuncTcpServer extends Activity {
                                     }
                                     else
                                     {
-                                        messageMaxDiff.what = 4;
-                                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diffOver+"ms";
-                                        myHandler.sendMessage(messageMaxDiff);
+                                        if(isOverError)
+                                        {
+                                            messageMaxDiff.what = 4;
+                                            messageMaxDiff.obj = "阈值时间差[port1-port2]未监测到！";
+                                            myHandler.sendMessage(messageMaxDiff);
+                                        }
+                                        else
+                                        {
+                                            messageMaxDiff.what = 4;
+                                            messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diffOver+"ms";
+                                            myHandler.sendMessage(messageMaxDiff);
+                                        }
                                     }
                                 } else {
                                     /*Message msgPort1 = Message.obtain();
@@ -215,6 +231,11 @@ public class FuncTcpServer extends Activity {
                                             +"[port1]最大值时间戳："+tempT+"\n"
                                             +"[port1]阈值时间戳："+overTempT+"\n";
                                     myHandler.sendMessage(msgPort1);*/
+                                    if(overTempT == last_over1 || overTempT == 0)
+                                    {
+                                        isOverError = true;
+                                    }
+                                    last_over1 = overTempT;
                                 }
 
                             }
@@ -290,6 +311,11 @@ public class FuncTcpServer extends Activity {
                                             +"最大值时间差[port1-port2]："+diffMax+"\n"
                                             +"[port2]阈值时间戳："+overTempT+"\n"
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
+                                    if(overTempT == last_over2 || overTempT == 0)
+                                    {
+                                        isOverError = true;
+                                    }
+                                    last_over2 = overTempT;
                                     if(IsUseMax)
                                     {
                                         messageMaxDiff.what = 4;
@@ -298,9 +324,17 @@ public class FuncTcpServer extends Activity {
                                     }
                                     else
                                     {
-                                        messageMaxDiff.what = 4;
-                                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diffOver+"ms";
-                                        myHandler.sendMessage(messageMaxDiff);
+                                        if(isOverError)
+                                        {
+                                            messageMaxDiff.what = 4;
+                                            messageMaxDiff.obj = "阈值时间差[port1-port2]未监测到！";
+                                            myHandler.sendMessage(messageMaxDiff);
+                                        }
+                                        else {
+                                            messageMaxDiff.what = 4;
+                                            messageMaxDiff.obj = "阈值时间差[port1-port2]:" + diffOver + "ms";
+                                            myHandler.sendMessage(messageMaxDiff);
+                                        }
                                     }
                                 } else {
                                     /*Message msgPort2 = Message.obtain();
@@ -309,6 +343,11 @@ public class FuncTcpServer extends Activity {
                                             +"[port2]最大值时间戳："+tempT+"\n"
                                             +"[port2]阈值时间戳："+overTempT+"\n";
                                     myHandler.sendMessage(msgPort2);*/
+                                    if(overTempT == last_over2 || overTempT == 0)
+                                    {
+                                        isOverError = true;
+                                    }
+                                    last_over2 = overTempT;
                                 }
 
                             }
@@ -404,6 +443,10 @@ public class FuncTcpServer extends Activity {
                     btnStartServer.setEnabled(false);
                     btnStartServer.setText("已开启服务器");
                     btnTest.setEnabled(true);
+                    btnCheckTime.setEnabled(true);
+                    btnListenTime.setEnabled(true);
+                    btnSwitch.setEnabled(true);
+                    btnServerVoice.setEnabled(true);
                     tcpServer1 = new TcpServer(getHost(editServerPort1.getText().toString()),"1");
                     exec.execute(tcpServer1);
                     tcpServer2 = new TcpServer(getHost(editServerPort2.getText().toString()),"2");
@@ -479,6 +522,7 @@ public class FuncTcpServer extends Activity {
                     {
                         isAudioRun = true;
                         btnListenTime.setText("3.远程开关:ON");
+                        isOverError = false;
                         getMaxFromp1 = false;
                         getMaxFromp2 = false;
                     }
@@ -502,9 +546,17 @@ public class FuncTcpServer extends Activity {
                         IsUseMax = false;
                         btnSwitch.setText("阈值时间差");
                         Message messageMaxDiff = Message.obtain();
-                        messageMaxDiff.what = 4;
-                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diff_Over+"ms";
-                        myHandler.sendMessage(messageMaxDiff);
+                        if(isOverError)
+                        {
+                            messageMaxDiff.what = 4;
+                            messageMaxDiff.obj = "阈值时间差[port1-port2]未监测到！";
+                            myHandler.sendMessage(messageMaxDiff);
+                        }
+                        else {
+                            messageMaxDiff.what = 4;
+                            messageMaxDiff.obj = "阈值时间差[port1-port2]:" + diff_Over + "ms";
+                            myHandler.sendMessage(messageMaxDiff);
+                        }
                     }
                     else{
                         IsUseMax = true;
@@ -541,6 +593,10 @@ public class FuncTcpServer extends Activity {
 
     private void ini(){
         btnTest.setEnabled(false);
+        btnCheckTime.setEnabled(false);
+        btnListenTime.setEnabled(false);
+        btnSwitch.setEnabled(false);
+        btnServerVoice.setEnabled(false);
         txtServerIp.setText(getHostIP());
     }
 
