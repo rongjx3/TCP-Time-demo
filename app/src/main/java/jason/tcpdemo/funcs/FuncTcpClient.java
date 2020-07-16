@@ -39,7 +39,7 @@ public class FuncTcpClient extends Activity {
     private String TAG = "FuncTcpClient";
     @SuppressLint("StaticFieldLeak")
     public static Context context ;
-    private Button btnStartClient,btnCloseClient, btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientVoice;
+    private Button btnStartClient,btnCleanClientSend, btnCleanClientRcv,btnClientSend,btnClientVoice;
     private Button btnGetTime, btnSendTime, btnTimeCorrect, btnLock;
     private TextView txtRcv,txtSend,txtTime;
     private EditText editClientSend,editClientVoice, editClientPort,editClientIp,editTimeCorrect;
@@ -146,17 +146,9 @@ public class FuncTcpClient extends Activity {
                     Log.i(TAG, "onClick: 开始");
                     btnStartClient.setEnabled(false);
                     btnLock.setEnabled(true);
-                    btnCloseClient.setEnabled(true);
                     btnClientSend.setEnabled(true);
                     tcpClient = new TcpClient(editClientIp.getText().toString(),getPort(editClientPort.getText().toString()));
                     exec.execute(tcpClient);
-                    break;
-                case R.id.btn_tcpClientClose:
-                    tcpClient.closeSelf();
-                    btnStartClient.setEnabled(true);
-                    btnLock.setEnabled(false);
-                    btnCloseClient.setEnabled(false);
-                    btnClientSend.setEnabled(false);
                     break;
                 case R.id.btn_tcpCleanClientRecv:
                     txtRcv.setText("");
@@ -256,7 +248,6 @@ public class FuncTcpClient extends Activity {
                     {
                         isLock = false;
                         btnLock.setText("锁定模式:OFF");
-                        btnCloseClient.setEnabled(true);
                         btnCleanClientRcv.setEnabled(true);
                         btnCleanClientSend.setEnabled(true);
                         btnClientVoice.setEnabled(true);
@@ -270,7 +261,6 @@ public class FuncTcpClient extends Activity {
                     {
                         isLock = true;
                         btnLock.setText("锁定模式:ON");
-                        btnCloseClient.setEnabled(false);
                         btnCleanClientRcv.setEnabled(false);
                         btnCleanClientSend.setEnabled(false);
                         btnClientVoice.setEnabled(false);
@@ -502,7 +492,6 @@ public class FuncTcpClient extends Activity {
 
     private void bindID(){
         btnStartClient = (Button) findViewById(R.id.btn_tcpClientConn);
-        btnCloseClient = (Button) findViewById(R.id.btn_tcpClientClose);
         btnCleanClientRcv = (Button) findViewById(R.id.btn_tcpCleanClientRecv);
         btnCleanClientSend = (Button) findViewById(R.id.btn_tcpCleanClientSend);
         btnClientVoice = (Button) findViewById(R.id.btn_tcpClientVoiceLimit);
@@ -524,7 +513,6 @@ public class FuncTcpClient extends Activity {
     }
     private void bindListener(){
         btnStartClient.setOnClickListener(myBtnClicker);
-        btnCloseClient.setOnClickListener(myBtnClicker);
         btnCleanClientRcv.setOnClickListener(myBtnClicker);
         btnCleanClientSend.setOnClickListener(myBtnClicker);
         btnClientVoice.setOnClickListener(myBtnClicker);
@@ -540,7 +528,6 @@ public class FuncTcpClient extends Activity {
         registerReceiver(myBroadcastReceiver,intentFilter);
     }
     private void Ini(){
-        btnCloseClient.setEnabled(false);
         btnClientSend.setEnabled(false);
         btnLock.setEnabled(false);
     }
