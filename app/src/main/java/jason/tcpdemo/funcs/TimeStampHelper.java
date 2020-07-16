@@ -67,6 +67,8 @@ public class TimeStampHelper {
         this.correct = correct;
     }
 
+    public long getCorrect(){return correct;}
+
     public long getOtherdate() {
         return otherdate;
     }

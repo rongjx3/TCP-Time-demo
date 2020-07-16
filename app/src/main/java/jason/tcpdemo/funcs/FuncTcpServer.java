@@ -50,8 +50,10 @@ public class FuncTcpServer extends Activity {
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
+    private TimeStampHelper tsh1 = new TimeStampHelper();
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
+    private boolean getMaxFromp1 = false, getMaxFromp2 = false;
     //private AudioHandler audioHandler = new AudioHandler(this);
     /*private boolean isAudioRun = false;
     private Runnable runnable = new Runnable() {
@@ -183,7 +185,37 @@ public class FuncTcpServer extends Activity {
                                         }
                                     });
                                 }
-                            } else {
+                            }
+                            else if(sta.equals("maxV:")){
+                                int loc1 = 0;
+                                for(int i = 5; i < mess.length(); i++){
+                                    if(mess.toCharArray()[i] == '时'){
+                                        loc1 = i;
+                                        break;
+                                    }
+                                }
+                                double tempV = Double.parseDouble(mess.substring(5, loc1));
+                                long tempT = Long.parseLong(mess.substring(loc1+4, mess.length()-2));
+                                tsh1.setClientdate1(tempT);
+                                getMaxFromp1 = true;
+                                if(getMaxFromp1 && getMaxFromp2){
+                                    long diff = tsh1.calcul_client_diff();
+                                    Message messageMaxDiff = Message.obtain();
+                                    messageMaxDiff.what = 1;
+                                    messageMaxDiff.obj = "[port1]最大音量："+tempV+"\n"
+                                            +"[port1]时间戳："+tempT+"\n"
+                                            +"时间差[port1-port2]："+diff+"\n";
+                                    myHandler.sendMessage(messageMaxDiff);
+                                } else {
+                                    Message msgPort1 = Message.obtain();
+                                    msgPort1.what = 1;
+                                    msgPort1.obj = "[port1]最大音量："+tempV+"\n"
+                                            +"[port1]时间戳："+tempT+"\n";
+                                    myHandler.sendMessage(msgPort1);
+                                }
+
+                            }
+                            else {
                                 txtRcv.append("[port1]"+msg.obj.toString());
                             }
                         }
@@ -232,7 +264,37 @@ public class FuncTcpServer extends Activity {
                                         }
                                     });
                                 }
-                            } else {
+                            }
+                            else if(sta.equals("maxV:")){
+                                int loc1 = 0;
+                                for(int i = 5; i < mess.length(); i++){
+                                    if(mess.toCharArray()[i] == '时'){
+                                        loc1 = i;
+                                        break;
+                                    }
+                                }
+                                double tempV = Double.parseDouble(mess.substring(5, loc1));
+                                long tempT = Long.parseLong(mess.substring(loc1+4, mess.length()-2));
+                                tsh1.setClientdate2(tempT);
+                                getMaxFromp2 = true;
+                                if(getMaxFromp1 && getMaxFromp2){
+                                    long diff = tsh1.calcul_client_diff();
+                                    Message messageMaxDiff = Message.obtain();
+                                    messageMaxDiff.what = 1;
+                                    messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
+                                            +"[port2]时间戳："+tempT+"\n"
+                                            +"时间差[port1-port2]："+diff+"\n";
+                                    myHandler.sendMessage(messageMaxDiff);
+                                } else {
+                                    Message msgPort2 = Message.obtain();
+                                    msgPort2.what = 1;
+                                    msgPort2.obj = "[port2]最大音量："+tempV+"\n"
+                                            +"[port2]时间戳："+tempT+"\n";
+                                    myHandler.sendMessage(msgPort2);
+                                }
+
+                            }
+                            else {
                                 txtRcv.append("[port2]"+msg.obj.toString());
                             }
                         }
@@ -449,6 +511,8 @@ public class FuncTcpServer extends Activity {
                     {
                         isAudioRun = true;
                         btnListenTime.setText("远程监听:ON");
+                        getMaxFromp1 = false;
+                        getMaxFromp2 = false;
                     }
 
                     exec.execute(new Runnable() {
