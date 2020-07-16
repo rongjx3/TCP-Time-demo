@@ -187,7 +187,7 @@ public class FuncTcpServer extends Activity {
                                         }
                                     });
 
-                                    if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
+                                    /*if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
                                     {
                                         last_last_diff = last_diff;
                                         last_diff = diff;
@@ -210,7 +210,7 @@ public class FuncTcpServer extends Activity {
                                     else
                                     {
                                         txtSend.append("矫正时间戳完成！");
-                                    }
+                                    }*/
                                 }
                             }
                             else if(sta.equals("maxV:")){
@@ -291,7 +291,7 @@ public class FuncTcpServer extends Activity {
                                         }
                                     });
 
-                                    if((Math.abs(diff)>5 || Math.abs(last_diff)>10) && count < 100)
+                                    /*if((Math.abs(diff)>5 || Math.abs(last_diff)>10) && count < 100)
                                     {
                                         count ++;
                                         last_last_diff = last_diff;
@@ -319,7 +319,7 @@ public class FuncTcpServer extends Activity {
                                     else
                                     {
                                         txtSend.append("矫正时间戳失败，请优化网络环境并重试！");
-                                    }
+                                    }*/
                                 }
                             }
                             else if(sta.equals("maxV:")){
