@@ -55,6 +55,8 @@ public class FuncTcpServer extends Activity {
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
+    private boolean IsUseMax = true;
+    private long diff_Max = 0,diff_Over = 0;
     //private AudioHandler audioHandler = new AudioHandler(this);
     /*private boolean isAudioRun = false;
     private Runnable runnable = new Runnable() {
@@ -129,7 +131,7 @@ public class FuncTcpServer extends Activity {
                         txtServerCorrect.setText("[标定误差]："+msg.obj.toString()+"ms");
                         break;
                     case 4:
-                        txtServerResult.setText("[时间差]([port1]-[port2]):"+msg.obj.toString()+"ms");
+                        txtServerResult.setText(msg.obj.toString());
                         break;
                     case 5:
                         mess = msg.obj.toString();
@@ -184,6 +186,8 @@ public class FuncTcpServer extends Activity {
                                 if(getMaxFromp1 && getMaxFromp2){
                                     long diffMax = tsh1.calcul_client_diff();
                                     long diffOver = tsh2.calcul_client_diff();
+                                    diff_Max = diffMax;
+                                    diff_Over = diffOver;
                                     Message messageMaxDiff = Message.obtain();
                                     /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port1]最大音量："+tempV+"\n"
@@ -192,9 +196,18 @@ public class FuncTcpServer extends Activity {
                                             +"[port1]阈值时间戳："+overTempT+"\n"
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
 
-                                    messageMaxDiff.what = 4;
-                                    messageMaxDiff.obj = ""+diff;
-                                    myHandler.sendMessage(messageMaxDiff);
+                                    if(IsUseMax)
+                                    {
+                                        messageMaxDiff.what = 4;
+                                        messageMaxDiff.obj = "最大值时间差[port1-port2]:"+diffMax+"ms";
+                                        myHandler.sendMessage(messageMaxDiff);
+                                    }
+                                    else
+                                    {
+                                        messageMaxDiff.what = 4;
+                                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diffOver+"ms";
+                                        myHandler.sendMessage(messageMaxDiff);
+                                    }
                                 } else {
                                     /*Message msgPort1 = Message.obtain();
                                     msgPort1.what = 1;
@@ -268,6 +281,8 @@ public class FuncTcpServer extends Activity {
                                 if(getMaxFromp1 && getMaxFromp2){
                                     long diffMax = tsh1.calcul_client_diff();
                                     long diffOver = tsh2.calcul_client_diff();
+                                    diff_Max = diffMax;
+                                    diff_Over = diffOver;
                                     Message messageMaxDiff = Message.obtain();
                                     /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
@@ -275,9 +290,18 @@ public class FuncTcpServer extends Activity {
                                             +"最大值时间差[port1-port2]："+diffMax+"\n"
                                             +"[port2]阈值时间戳："+overTempT+"\n"
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
-                                    messageMaxDiff.what = 4;
-                                    messageMaxDiff.obj = ""+diff;
-                                    myHandler.sendMessage(messageMaxDiff);
+                                    if(IsUseMax)
+                                    {
+                                        messageMaxDiff.what = 4;
+                                        messageMaxDiff.obj = "最大值时间差[port1-port2]:"+diffMax+"ms";
+                                        myHandler.sendMessage(messageMaxDiff);
+                                    }
+                                    else
+                                    {
+                                        messageMaxDiff.what = 4;
+                                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diffOver+"ms";
+                                        myHandler.sendMessage(messageMaxDiff);
+                                    }
                                 } else {
                                     /*Message msgPort2 = Message.obtain();
                                     msgPort2.what = 1;
@@ -473,7 +497,23 @@ public class FuncTcpServer extends Activity {
                     });
                     break;
                 case R.id.btn_tcpServerSwitch:
-
+                    if(IsUseMax)
+                    {
+                        IsUseMax = false;
+                        btnSwitch.setText("阈值时间差");
+                        Message messageMaxDiff = Message.obtain();
+                        messageMaxDiff.what = 4;
+                        messageMaxDiff.obj = "阈值时间差[port1-port2]:"+diff_Over+"ms";
+                        myHandler.sendMessage(messageMaxDiff);
+                    }
+                    else{
+                        IsUseMax = true;
+                        btnSwitch.setText("最大值时间差");
+                        Message messageMaxDiff = Message.obtain();
+                        messageMaxDiff.what = 4;
+                        messageMaxDiff.obj = "最大值时间差[port1-port2]:"+diff_Max+"ms";
+                        myHandler.sendMessage(messageMaxDiff);
+                    }
                     break;
 
             }

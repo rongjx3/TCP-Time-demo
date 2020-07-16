@@ -256,6 +256,11 @@ public class FuncTcpClient extends Activity {
                         btnSendTime.setEnabled(true);
                         btnTimeCorrect.setEnabled(true);
                         btnControlAudio.setEnabled(true);
+                        editClientVoice.setFocusable(true);
+                        editTimeCorrect.setFocusable(true);
+                        editClientIp.setFocusable(true);
+                        editClientPort.setFocusable(true);
+                        editClientSend.setFocusable(true);
                     }
                     else
                     {
@@ -269,6 +274,11 @@ public class FuncTcpClient extends Activity {
                         btnSendTime.setEnabled(false);
                         btnTimeCorrect.setEnabled(false);
                         btnControlAudio.setEnabled(false);
+                        editClientVoice.setFocusable(false);
+                        editTimeCorrect.setFocusable(false);
+                        editClientIp.setFocusable(false);
+                        editClientPort.setFocusable(false);
+                        editClientSend.setFocusable(false);
                     }
             }
         }

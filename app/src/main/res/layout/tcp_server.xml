@@ -2,51 +2,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="6"
+    android:weightSum="9"
     >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:keepScreenOn="true">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:text="本机ip:"/>
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="2"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:id="@+id/txt_Server_Ip"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:text="port1"/>
 
             <EditText
                 android:id="@+id/edit_Server_Port1"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="1232"
                 android:inputType="number" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:text="port2"/>
 
             <EditText
                 android:id="@+id/edit_Server_Port2"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="1233"
                 android:inputType="number" />
@@ -55,6 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:layout_weight="1"
             >
             <Button
                 android:layout_height="wrap_content"
@@ -71,7 +78,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:layout_weight="1">
+        android:layout_weight="2">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -86,6 +93,7 @@
                 android:layout_gravity="center_vertical"
                 android:textSize="20dp"
                 android:text="[标定误差]"
+                android:background="@drawable/textview_border"
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
@@ -110,7 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_weight="3"
                 android:gravity="center"
-                android:text="*请在网络条件较好的环境下多次点击，直到标定误差在10以内"
+                android:text="*请在网络条件较好的环境下多次点击，直到标定误差在10ms以内"
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
@@ -121,7 +129,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:layout_weight="1">
+        android:layout_weight="2">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -135,6 +143,7 @@
                 android:id="@+id/txt_timeresult"
                 android:layout_gravity="center_vertical"
                 android:textSize="20dp"
+                android:background="@drawable/textview_border"
                 android:text="[时间差]"
                 android:layout_height="wrap_content" />
         </LinearLayout>
