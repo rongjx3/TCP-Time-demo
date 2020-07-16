@@ -65,6 +65,7 @@ public class FuncTcpClient extends Activity {
     private double maxVolume = 0;
     private Bundle maxVolumeBundle = new Bundle();
     private boolean isCaptureVolume = false;
+    private Bundle overLimitBundle = new Bundle();
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -95,10 +96,21 @@ public class FuncTcpClient extends Activity {
                         maxVolume = v;
                         maxVolumeBundle.putDouble("maxVolume", maxVolume);
                         maxVolumeBundle.putLong("timeStamp", dates);
+                        if(isCaptureVolume){
+                            maxVolumeBundle.putDouble("overVolume", overLimitBundle.getDouble("overVolume"));
+                            maxVolumeBundle.putLong("overTimeStamp", overLimitBundle.getLong("overTimeStamp"));
+                        }else {
+                            maxVolumeBundle.putDouble("overVolume", 0);
+                            maxVolumeBundle.putLong("overTimeStamp", 0);
+                        }
                     }
                     if(v > voicelimit && !isCaptureVolume){
                         curThresholdTimeStamp = System.currentTimeMillis();
                         if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
+                            overLimitBundle.putDouble("overVolume", bundle.getDouble("volume"));
+                            overLimitBundle.putLong("overTimeStamp", bundle.getLong("timeStamp"));
+                            maxVolumeBundle.putDouble("overVolume", overLimitBundle.getDouble("overVolume"));
+                            maxVolumeBundle.putLong("overTimeStamp", overLimitBundle.getLong("overTimeStamp"));
                             audioHandler.sendMessage(msg);
                         }
                         lastThresholdTimeStamp = curThresholdTimeStamp;
@@ -334,7 +346,8 @@ public class FuncTcpClient extends Activity {
                                     @Override
                                     public void run() {
                                         tcpClient.send("maxV:" + maxVolumeBundle.getDouble("maxVolume")
-                                                + "时间戳：" + maxVolumeBundle.getLong("timeStamp") + "\n");
+                                                + "maxTimeStamp:" + maxVolumeBundle.getLong("timeStamp")
+                                                + "overTimeStamp:" + maxVolumeBundle.getLong("overTimeStamp") + "\n");
                                     }
                                 });
                             }
