@@ -51,6 +51,7 @@ public class FuncTcpServer extends Activity {
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
     private TimeStampHelper tsh1 = new TimeStampHelper();
+    private TimeStampHelper tsh2 = new TimeStampHelper();
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
@@ -171,33 +172,35 @@ public class FuncTcpServer extends Activity {
                                 }
                             }
                             else if(sta.equals("maxV:")){
-                                int loc1 = 0;
-                                for(int i = 5; i < mess.length(); i++){
-                                    if(mess.toCharArray()[i] == '时'){
-                                        loc1 = i;
-                                        break;
-                                    }
-                                }
+                                int loc1 = mess.indexOf("maxTimeStamp");
+                                int loc2 = mess.indexOf("overTimeStamp");
+
                                 double tempV = Double.parseDouble(mess.substring(5, loc1));
-                                long tempT = Long.parseLong(mess.substring(loc1+4, mess.length()-2));
+                                long tempT = Long.parseLong(mess.substring(loc1 + 13, loc2));
+                                long overTempT = Long.parseLong(mess.substring(loc2 + 14, mess.length() - 2));
                                 tsh1.setClientdate1(tempT);
+                                tsh2.setClientdate1(overTempT);
                                 getMaxFromp1 = true;
                                 if(getMaxFromp1 && getMaxFromp2){
-                                    long diff = tsh1.calcul_client_diff();
+                                    long diffMax = tsh1.calcul_client_diff();
+                                    long diffOver = tsh2.calcul_client_diff();
                                     Message messageMaxDiff = Message.obtain();
                                     /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port1]最大音量："+tempV+"\n"
-                                            +"[port1]时间戳："+tempT+"\n"
-                                            +"时间差[port1-port2]："+diff+"\n";*/
+                                            +"[port1]最大值时间戳："+tempT+"\n"
+                                            +"最大值时间差[port1-port2]："+diffMax+"\n"
+                                            +"[port1]阈值时间戳："+overTempT+"\n"
+                                            +"阈值时间差[port1-port2]："+diffOver+"\n";*/
+
                                     messageMaxDiff.what = 4;
                                     messageMaxDiff.obj = ""+diff;
-
                                     myHandler.sendMessage(messageMaxDiff);
                                 } else {
                                     /*Message msgPort1 = Message.obtain();
                                     msgPort1.what = 1;
                                     msgPort1.obj = "[port1]最大音量："+tempV+"\n"
-                                            +"[port1]时间戳："+tempT+"\n";
+                                            +"[port1]最大值时间戳："+tempT+"\n"
+                                            +"[port1]阈值时间戳："+overTempT+"\n";
                                     myHandler.sendMessage(msgPort1);*/
                                 }
 
@@ -253,24 +256,25 @@ public class FuncTcpServer extends Activity {
                                 }
                             }
                             else if(sta.equals("maxV:")){
-                                int loc1 = 0;
-                                for(int i = 5; i < mess.length(); i++){
-                                    if(mess.toCharArray()[i] == '时'){
-                                        loc1 = i;
-                                        break;
-                                    }
-                                }
+                                int loc1 = mess.indexOf("maxTimeStamp");
+                                int loc2 = mess.indexOf("overTimeStamp");
+
                                 double tempV = Double.parseDouble(mess.substring(5, loc1));
-                                long tempT = Long.parseLong(mess.substring(loc1+4, mess.length()-2));
+                                long tempT = Long.parseLong(mess.substring(loc1 + 13, loc2));
+                                long overTempT = Long.parseLong(mess.substring(loc2 + 14, mess.length() - 2));
+                                tsh2.setClientdate2(overTempT);
                                 tsh1.setClientdate2(tempT);
                                 getMaxFromp2 = true;
                                 if(getMaxFromp1 && getMaxFromp2){
-                                    long diff = tsh1.calcul_client_diff();
+                                    long diffMax = tsh1.calcul_client_diff();
+                                    long diffOver = tsh2.calcul_client_diff();
                                     Message messageMaxDiff = Message.obtain();
                                     /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
-                                            +"[port2]时间戳："+tempT+"\n"
-                                            +"时间差[port1-port2]："+diff+"\n";*/
+                                            +"[port2]最大值时间戳："+tempT+"\n"
+                                            +"最大值时间差[port1-port2]："+diffMax+"\n"
+                                            +"[port2]阈值时间戳："+overTempT+"\n"
+                                            +"阈值时间差[port1-port2]："+diffOver+"\n";*/
                                     messageMaxDiff.what = 4;
                                     messageMaxDiff.obj = ""+diff;
                                     myHandler.sendMessage(messageMaxDiff);
@@ -278,7 +282,8 @@ public class FuncTcpServer extends Activity {
                                     /*Message msgPort2 = Message.obtain();
                                     msgPort2.what = 1;
                                     msgPort2.obj = "[port2]最大音量："+tempV+"\n"
-                                            +"[port2]时间戳："+tempT+"\n";
+                                            +"[port2]最大值时间戳："+tempT+"\n"
+                                            +"[port2]阈值时间戳："+overTempT+"\n";
                                     myHandler.sendMessage(msgPort2);*/
                                 }
 
