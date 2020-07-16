@@ -40,10 +40,10 @@ import static android.content.ContentValues.TAG;
  */
 
 public class FuncTcpServer extends Activity {
-    private Button btnStartServer,btnCloseServer, btnCleanServerSend, btnCleanServerRcv,btnServerSend,btnServerVoice;
-    private Button btnTest, btnCheckTime, btnCalTime, btnListenTime, btnAskTime;
-    private TextView txtRcv,txtSend,txtServerIp,txtTime1, txtTime2;
-    private EditText editServerSend,editServerVoice, editServerPort1,editServerPort2;
+    private Button btnStartServer, btnCheckTime, btnListenTime;
+    private Button btnTest,btnCleanServerRcv,btnServerVoice,btnSwitch;
+    private TextView txtRcv,txtServerIp,txtServerCorrect,txtServerResult;
+    private EditText editServerVoice, editServerPort1,editServerPort2;
     private AudioHelper audioHelper = new AudioHelper();
     private static TcpServer tcpServer1 = null, tcpServer2 = null;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
@@ -51,8 +51,6 @@ public class FuncTcpServer extends Activity {
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
     private TimeStampHelper tsh1 = new TimeStampHelper();
-    private long last_diff=9999, last_last_diff=9999;
-    private int count = 0;
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
@@ -119,22 +117,6 @@ public class FuncTcpServer extends Activity {
                 switch (msg.what){
                     case 1:
                         mess = msg.obj.toString();
-                        /*if(mess.length()>=5) {
-                            String sta = mess.substring(0, 5);
-                            Log.i(TAG, "substring : " + sta);
-                            if (sta.equals("time:")) {
-                                String mun = mess.substring(5, mess.length()-1);
-                                long ot = Long.parseLong(mun);
-                                txtSend.append("对方时间戳："+mun+"\n");
-                                tsh.setOtherdate(ot);
-                            } else {
-                                txtRcv.append("对方："+msg.obj.toString());
-                            }
-                        }
-                        else
-                        {
-                            txtRcv.append("对方："+msg.obj.toString());
-                        }*/
                         txtRcv.append(msg.obj.toString());
                         break;
                     case 2:
@@ -143,10 +125,10 @@ public class FuncTcpServer extends Activity {
                         break;
                     case 3:
                         //txtSend.append(msg.obj.toString());
-                        txtSend.append("已为[port1]矫正时间戳："+msg.obj.toString()+"ms\n");
+                        txtServerCorrect.setText("[标定误差]："+msg.obj.toString()+"ms");
                         break;
                     case 4:
-                        txtSend.append("计算并发送结果（[port1]-[port2]）："+msg.obj.toString()+"ms\n");
+                        txtServerResult.setText("[时间差]([port1]-[port2]):"+msg.obj.toString()+"ms");
                         break;
                     case 5:
                         mess = msg.obj.toString();
@@ -166,9 +148,9 @@ public class FuncTcpServer extends Activity {
                             else if (sta.equals("time:")) {
                                 String mun = mess.substring(5, mess.length()-1);
                                 long ot = Long.parseLong(mun);
-                                txtSend.append("[port1]时间戳："+mun+"\n");
+                                //txtSend.append("[port1]时间戳："+mun+"\n");
                                 tsh.setClientdate1(ot);
-                                txtTime1.setText("[port1]:"+ot);
+                                //txtTime1.setText("[port1]:"+ot);
                                 getfromp1 = true;
 
                                 if(getfromp2 && getfromp1 && correcting)
@@ -186,31 +168,6 @@ public class FuncTcpServer extends Activity {
                                             tcpServer1.SST.get(0).send("cort:" + diff_s);
                                         }
                                     });
-
-                                    /*if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
-                                    {
-                                        last_last_diff = last_diff;
-                                        last_diff = diff;
-                                        getfromp1 = false;
-                                        getfromp2 = false;
-                                        correcting = true;
-                                        exec.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tcpServer1.SST.get(0).send("Timecheck");
-                                            }
-                                        });
-                                        exec.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tcpServer2.SST.get(0).send("Timecheck");
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        txtSend.append("矫正时间戳完成！");
-                                    }*/
                                 }
                             }
                             else if(sta.equals("maxV:")){
@@ -228,17 +185,20 @@ public class FuncTcpServer extends Activity {
                                 if(getMaxFromp1 && getMaxFromp2){
                                     long diff = tsh1.calcul_client_diff();
                                     Message messageMaxDiff = Message.obtain();
-                                    messageMaxDiff.what = 1;
+                                    /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port1]最大音量："+tempV+"\n"
                                             +"[port1]时间戳："+tempT+"\n"
-                                            +"时间差[port1-port2]："+diff+"\n";
+                                            +"时间差[port1-port2]："+diff+"\n";*/
+                                    messageMaxDiff.what = 4;
+                                    messageMaxDiff.obj = ""+diff;
+
                                     myHandler.sendMessage(messageMaxDiff);
                                 } else {
-                                    Message msgPort1 = Message.obtain();
+                                    /*Message msgPort1 = Message.obtain();
                                     msgPort1.what = 1;
                                     msgPort1.obj = "[port1]最大音量："+tempV+"\n"
                                             +"[port1]时间戳："+tempT+"\n";
-                                    myHandler.sendMessage(msgPort1);
+                                    myHandler.sendMessage(msgPort1);*/
                                 }
 
                             }
@@ -270,9 +230,9 @@ public class FuncTcpServer extends Activity {
                             else if (sta.equals("time:")) {
                                 String mun = mess.substring(5, mess.length()-1);
                                 long ot = Long.parseLong(mun);
-                                txtSend.append("[port2]时间戳："+mun+"\n");
+                                //txtSend.append("[port2]时间戳："+mun+"\n");
                                 tsh.setClientdate2(ot);
-                                txtTime2.setText("[port2]:"+ot);
+                                //txtTime2.setText("[port2]:"+ot);
                                 getfromp2 = true;
 
                                 if(getfromp2 && getfromp1 && correcting)
@@ -290,36 +250,6 @@ public class FuncTcpServer extends Activity {
                                             tcpServer1.SST.get(0).send("cort:" + diff_s);
                                         }
                                     });
-
-                                    /*if((Math.abs(diff)>5 || Math.abs(last_diff)>10) && count < 100)
-                                    {
-                                        count ++;
-                                        last_last_diff = last_diff;
-                                        last_diff = diff;
-                                        getfromp1 = false;
-                                        getfromp2 = false;
-                                        correcting = true;
-                                        exec.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tcpServer1.SST.get(0).send("Timecheck");
-                                            }
-                                        });
-                                        exec.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tcpServer2.SST.get(0).send("Timecheck");
-                                            }
-                                        });
-                                    }
-                                    else if(count < 100)
-                                    {
-                                        txtSend.append("矫正时间戳完成！");
-                                    }
-                                    else
-                                    {
-                                        txtSend.append("矫正时间戳失败，请优化网络环境并重试！");
-                                    }*/
                                 }
                             }
                             else if(sta.equals("maxV:")){
@@ -337,17 +267,19 @@ public class FuncTcpServer extends Activity {
                                 if(getMaxFromp1 && getMaxFromp2){
                                     long diff = tsh1.calcul_client_diff();
                                     Message messageMaxDiff = Message.obtain();
-                                    messageMaxDiff.what = 1;
+                                    /*messageMaxDiff.what = 1;
                                     messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
                                             +"[port2]时间戳："+tempT+"\n"
-                                            +"时间差[port1-port2]："+diff+"\n";
+                                            +"时间差[port1-port2]："+diff+"\n";*/
+                                    messageMaxDiff.what = 4;
+                                    messageMaxDiff.obj = ""+diff;
                                     myHandler.sendMessage(messageMaxDiff);
                                 } else {
-                                    Message msgPort2 = Message.obtain();
+                                    /*Message msgPort2 = Message.obtain();
                                     msgPort2.what = 1;
                                     msgPort2.obj = "[port2]最大音量："+tempV+"\n"
                                             +"[port2]时间戳："+tempT+"\n";
-                                    myHandler.sendMessage(msgPort2);
+                                    myHandler.sendMessage(msgPort2);*/
                                 }
 
                             }
@@ -441,21 +373,12 @@ public class FuncTcpServer extends Activity {
                 case R.id.btn_tcpServerConn:
                     Log.i("A", "onClick: 开始");
                     btnStartServer.setEnabled(false);
-                    btnCloseServer.setEnabled(true);
-                    btnServerSend.setEnabled(true);
+                    btnStartServer.setText("已开启服务器");
                     btnTest.setEnabled(true);
                     tcpServer1 = new TcpServer(getHost(editServerPort1.getText().toString()),"1");
                     exec.execute(tcpServer1);
                     tcpServer2 = new TcpServer(getHost(editServerPort2.getText().toString()),"2");
                     exec.execute(tcpServer2);
-                    break;
-                case R.id.btn_tcpServerClose:
-                    tcpServer1.closeSelf();
-                    tcpServer2.closeSelf();
-                    btnStartServer.setEnabled(true);
-                    btnCloseServer.setEnabled(false);
-                    btnServerSend.setEnabled(false);
-                    btnTest.setEnabled(false);
                     break;
                 case R.id.btn_tcpServerTest:
                     txtRcv.append("连接测试...\n");
@@ -474,9 +397,6 @@ public class FuncTcpServer extends Activity {
                     break;
                 case R.id.btn_tcpCleanServerRecv:
                     txtRcv.setText("");
-                    break;
-                case R.id.btn_tcpCleanServerSend:
-                    txtSend.setText("");
                     break;
                 case R.id.btn_tcpServerVoiceLimit:
                     final String voi = editServerVoice.getText().toString();
@@ -500,32 +420,11 @@ public class FuncTcpServer extends Activity {
                         }
                     });
                     break;
-                case R.id.btn_tcpServerSend:
-                    Message message = Message.obtain();
-                    message.what = 2;
-                    message.obj = editServerSend.getText().toString();
-                    myHandler.sendMessage(message);
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer1.SST.get(0).send(editServerSend.getText().toString());
-                        }
-                    });
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer2.SST.get(0).send(editServerSend.getText().toString());
-                        }
-                    });
-                    break;
 
                 case R.id.btn_tcpServerCheckTime:
                     getfromp1 = false;
                     getfromp2 = false;
                     correcting = true;
-                    last_diff = 9999;
-                    last_last_diff = 9999;
-                    count = 0;
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -541,36 +440,16 @@ public class FuncTcpServer extends Activity {
 
                     break;
 
-                case R.id.btn_tcpServerCalTime:
-                    long diff1 = tsh.calcul_client_diff();
-                    Message messagetime = Message.obtain();
-                    messagetime.what = 4;
-                    messagetime.obj = String.valueOf(diff1);
-                    final String diff_s1= String.valueOf(diff1);
-                    myHandler.sendMessage(messagetime);
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer1.SST.get(0).send("time: [port1]-[port2]= " + diff_s1 + "ms");
-                        }
-                    });
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer2.SST.get(0).send("time: [port1]-[port2]= " + diff_s1 + "ms");
-                        }
-                    });
-                    break;
                 case R.id.btn_tcpServerListenTime:
                     if(isAudioRun)
                     {
                         isAudioRun = false;
-                        btnListenTime.setText("远程监听:OFF");
+                        btnListenTime.setText("3.远程开关:OFF");
                     }
                     else
                     {
                         isAudioRun = true;
-                        btnListenTime.setText("远程监听:ON");
+                        btnListenTime.setText("3.远程开关:ON");
                         getMaxFromp1 = false;
                         getMaxFromp2 = false;
                     }
@@ -588,19 +467,8 @@ public class FuncTcpServer extends Activity {
                         }
                     });
                     break;
-                case R.id.btn_tcpServerAskTime:
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer1.SST.get(0).send("AskTime");
-                        }
-                    });
-                    exec.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            tcpServer2.SST.get(0).send("AskTime");
-                        }
-                    });
+                case R.id.btn_tcpServerSwitch:
+
                     break;
 
             }
@@ -627,45 +495,33 @@ public class FuncTcpServer extends Activity {
     }
 
     private void ini(){
-        btnCloseServer.setEnabled(false);
-        btnServerSend.setEnabled(false);
         btnTest.setEnabled(false);
         txtServerIp.setText(getHostIP());
     }
 
     private void bindListener() {
         btnStartServer.setOnClickListener(myBtnClicker);
-        btnCloseServer.setOnClickListener(myBtnClicker);
         btnCleanServerRcv.setOnClickListener(myBtnClicker);
-        btnCleanServerSend.setOnClickListener(myBtnClicker);
         btnServerVoice.setOnClickListener(myBtnClicker);
-        btnServerSend.setOnClickListener(myBtnClicker);
         btnCheckTime.setOnClickListener(myBtnClicker);
         btnTest.setOnClickListener(myBtnClicker);
-        btnCalTime.setOnClickListener(myBtnClicker);
         btnListenTime.setOnClickListener(myBtnClicker);
-        btnAskTime.setOnClickListener(myBtnClicker);
+        btnSwitch.setOnClickListener(myBtnClicker);
     }
 
     private void bindID() {
         btnStartServer = (Button) findViewById(R.id.btn_tcpServerConn);
-        btnCloseServer = (Button) findViewById(R.id.btn_tcpServerClose);
         btnCleanServerRcv = (Button) findViewById(R.id.btn_tcpCleanServerRecv);
-        btnCleanServerSend = (Button) findViewById(R.id.btn_tcpCleanServerSend);
         btnServerVoice = (Button) findViewById(R.id.btn_tcpServerVoiceLimit);
-        btnServerSend = (Button) findViewById(R.id.btn_tcpServerSend);
         btnCheckTime = (Button) findViewById(R.id.btn_tcpServerCheckTime);
         btnTest = (Button) findViewById(R.id.btn_tcpServerTest);
-        btnCalTime = (Button) findViewById(R.id.btn_tcpServerCalTime);
         btnListenTime = (Button) findViewById(R.id.btn_tcpServerListenTime);
-        btnAskTime = (Button) findViewById(R.id.btn_tcpServerAskTime);
+        btnSwitch = (Button) findViewById(R.id.btn_tcpServerSwitch);
         txtRcv = (TextView) findViewById(R.id.txt_ServerRcv);
-        txtSend = (TextView) findViewById(R.id.txt_ServerSend);
         txtServerIp = (TextView) findViewById(R.id.txt_Server_Ip);
-        txtTime1 = (TextView) findViewById(R.id.txt_timestamp1);
-        txtTime2 = (TextView) findViewById(R.id.txt_timestamp2);
+        txtServerCorrect = (TextView) findViewById(R.id.txt_timecorrect);
+        txtServerResult = (TextView) findViewById(R.id.txt_timeresult);
         editServerVoice = (EditText) findViewById(R.id.edit_tcpServerVoiceLimit);
-        editServerSend = (EditText) findViewById(R.id.edit_tcpClientSend);
         editServerPort1 = (EditText)findViewById(R.id.edit_Server_Port1);
         editServerPort2 = (EditText)findViewById(R.id.edit_Server_Port2);
     }
