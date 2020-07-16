@@ -50,6 +50,7 @@ public class FuncTcpServer extends Activity {
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
+    private long last_diff=9999, last_last_diff=9999;
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     //private AudioHandler audioHandler = new AudioHandler(this);
@@ -182,6 +183,31 @@ public class FuncTcpServer extends Activity {
                                             tcpServer1.SST.get(0).send("cort:" + diff_s);
                                         }
                                     });
+
+                                    if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
+                                    {
+                                        last_last_diff = last_diff;
+                                        last_diff = diff;
+                                        getfromp1 = false;
+                                        getfromp2 = false;
+                                        correcting = true;
+                                        exec.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                tcpServer1.SST.get(0).send("Timecheck");
+                                            }
+                                        });
+                                        exec.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                tcpServer2.SST.get(0).send("Timecheck");
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        txtSend.append("矫正时间戳完成！");
+                                    }
                                 }
                             } else {
                                 txtRcv.append("[port1]"+msg.obj.toString());
@@ -231,6 +257,31 @@ public class FuncTcpServer extends Activity {
                                             tcpServer1.SST.get(0).send("cort:" + diff_s);
                                         }
                                     });
+
+                                    if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
+                                    {
+                                        last_last_diff = last_diff;
+                                        last_diff = diff;
+                                        getfromp1 = false;
+                                        getfromp2 = false;
+                                        correcting = true;
+                                        exec.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                tcpServer1.SST.get(0).send("Timecheck");
+                                            }
+                                        });
+                                        exec.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                tcpServer2.SST.get(0).send("Timecheck");
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        txtSend.append("矫正时间戳完成！");
+                                    }
                                 }
                             } else {
                                 txtRcv.append("[port2]"+msg.obj.toString());
@@ -404,6 +455,8 @@ public class FuncTcpServer extends Activity {
                     getfromp1 = false;
                     getfromp2 = false;
                     correcting = true;
+                    last_diff = 9999;
+                    last_last_diff = 9999;
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {

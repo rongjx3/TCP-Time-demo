@@ -20,7 +20,7 @@ import jason.tcpdemo.util.PermissionsUtil;
 
 public class MainActivity extends Activity implements PermissionsUtil.IPermissionsCallback{
 
-    private RadioButton radioBtnServer,radioBtnClient;
+    private RadioButton radioBtnServer,radioBtnClient1,radioBtnClient2;
     private Button btnFuncEnsure;
     private TextView txtShowFunc;
     private MyRadioButtonCheck myRadioButtonCheck = new MyRadioButtonCheck();
@@ -37,9 +37,14 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                         txtShowFunc.setText("你选则的功能是：服务器");
                     }
                     break;
-                case R.id.radio_Client:
+                case R.id.radio_Client1:
                     if (b){
-                        txtShowFunc.setText("你选则的功能是：客户端");
+                        txtShowFunc.setText("你选则的功能是：客户端1");
+                    }
+                    break;
+                case R.id.radio_Client2:
+                    if (b){
+                        txtShowFunc.setText("你选则的功能是：客户端2");
                     }
                     break;
             }
@@ -57,8 +62,14 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                         intent.setClass(MainActivity.this,FuncTcpServer.class);
                         startActivity(intent);
                     }
-                    if (radioBtnClient.isChecked()){
+                    if (radioBtnClient1.isChecked()){
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
+                        intent.putExtra("port","1232");
+                        startActivity(intent);
+                    }
+                    if (radioBtnClient2.isChecked()){
+                        intent.setClass(MainActivity.this, FuncTcpClient.class);
+                        intent.putExtra("port","1233");
                         startActivity(intent);
                     }
                     break;
@@ -76,13 +87,15 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
 
     private void bindID() {
         radioBtnServer = (RadioButton) findViewById(R.id.radio_Server);
-        radioBtnClient = (RadioButton) findViewById(R.id.radio_Client);
+        radioBtnClient1 = (RadioButton) findViewById(R.id.radio_Client1);
+        radioBtnClient2 = (RadioButton) findViewById(R.id.radio_Client2);
         btnFuncEnsure = (Button) findViewById(R.id.btn_FunctionEnsure);
         txtShowFunc = (TextView) findViewById(R.id.txt_ShowFunction);
     }
 
     private void bindListener(){
-        radioBtnClient.setOnCheckedChangeListener(myRadioButtonCheck);
+        radioBtnClient1.setOnCheckedChangeListener(myRadioButtonCheck);
+        radioBtnClient2.setOnCheckedChangeListener(myRadioButtonCheck);
         radioBtnServer.setOnCheckedChangeListener(myRadioButtonCheck);
         btnFuncEnsure.setOnClickListener(myButtonClick);
     }

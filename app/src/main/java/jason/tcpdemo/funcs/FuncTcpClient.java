@@ -457,10 +457,13 @@ public class FuncTcpClient extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tcp_client);
         context = this;
+        Intent intent = getIntent();
+        String port = intent.getStringExtra("port");
         bindID();
         bindListener();
         bindReceiver();
         Ini();
+        editClientPort.setText(port);
     }
 
 

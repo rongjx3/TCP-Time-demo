@@ -22,8 +22,13 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="客户端(Client)"
-            android:id="@+id/radio_Client"/>
+            android:text="客户端1(Client1)"
+            android:id="@+id/radio_Client1"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="客户端2(Client2)"
+            android:id="@+id/radio_Client2"/>
     </RadioGroup>
     <TextView
         android:layout_width="wrap_content"
