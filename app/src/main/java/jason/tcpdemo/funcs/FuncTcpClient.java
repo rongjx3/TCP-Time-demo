@@ -64,6 +64,7 @@ public class FuncTcpClient extends Activity {
     private double voicelimit = 70;
     private double maxVolume = 0;
     private Bundle maxVolumeBundle = new Bundle();
+    private boolean isCaptureVolume = false;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -95,13 +96,14 @@ public class FuncTcpClient extends Activity {
                         maxVolumeBundle.putDouble("maxVolume", maxVolume);
                         maxVolumeBundle.putLong("timeStamp", dates);
                     }
-                    if(v > voicelimit){
+                    if(v > voicelimit && !isCaptureVolume){
                         curThresholdTimeStamp = System.currentTimeMillis();
                         if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
                             audioHandler.sendMessage(msg);
                         }
                         lastThresholdTimeStamp = curThresholdTimeStamp;
-                    }else {
+                        isCaptureVolume = true;
+                    }else if(v < voicelimit){
                         audioHandler.sendMessage(msg);
 
                     }
@@ -179,10 +181,10 @@ public class FuncTcpClient extends Activity {
                     break;
 
                 case R.id.btn_tcpClientSendTime:
-                    long dates = tsh.getMydate();
+                    String dates = txtTime.getText().toString();
                     Message messagetime = Message.obtain();
                     messagetime.what = 4;
-                    messagetime.obj = String.valueOf(dates);
+                    messagetime.obj = dates;
                     myHandler.sendMessage(messagetime);
                     exec.execute(new Runnable() {
                         @Override
@@ -201,12 +203,14 @@ public class FuncTcpClient extends Activity {
                     //第一次按监听键
                     if(!isAudioRun && isfirstListen){
                         maxVolume = 0;
+                        isCaptureVolume = false;
                         btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
                         audioListenThread.start();
                         isfirstListen = false;
                     }else if(!isAudioRun && !isfirstListen){
                         //第二次
+                        isCaptureVolume = false;
                         maxVolume = 0;
                         btnControlAudio.setText("监听声音:ON");
                         audioHelper.startRecord();
@@ -300,6 +304,7 @@ public class FuncTcpClient extends Activity {
                             //第一次按监听键
                             if(!isAudioRun && isfirstListen){
                                 maxVolume = 0;
+                                isCaptureVolume = false;
                                 btnControlAudio.setText("监听声音:ON");
                                 audioHelper.startRecord();
                                 audioListenThread.start();
@@ -307,6 +312,7 @@ public class FuncTcpClient extends Activity {
                             }else if(!isAudioRun && !isfirstListen){
                                 //第二次
                                 maxVolume = 0;
+                                isCaptureVolume = false;
                                 btnControlAudio.setText("监听声音:ON");
                                 audioHelper.startRecord();
                                 synchronized (lock){
@@ -336,7 +342,7 @@ public class FuncTcpClient extends Activity {
                         }
                         else if (t.equals("AskTime")) {
                             txtSend.append("获取时间戳请求\n");
-                            long dates = tsh.getMydate();
+                            String dates = txtTime.getText().toString();
                             txtSend.append("发送时间戳:"+dates+"\n");
                             exec.execute(new Runnable() {
                                 @Override
@@ -428,7 +434,7 @@ public class FuncTcpClient extends Activity {
                 String dbs = String.format("%.2f", db);
                 txtVolume.setText(dbs);
                 if(db > voicelimit){
-                    needPause = true;
+//                    needPause = true;
                     Message msg1 = myHandler.obtainMessage();
                     Log.d(TAG, "handleMessage: "+tsh.getMydate()+" "+dates);
                     msg1.what = 3;
