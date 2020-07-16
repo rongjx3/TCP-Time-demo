@@ -63,6 +63,7 @@ public class FuncTcpClient extends Activity {
     private long curThresholdTimeStamp = 0;
     private double voicelimit = 70;
     private double maxVolume = 0;
+    private Bundle maxVolumeBundle = new Bundle();
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -83,21 +84,24 @@ public class FuncTcpClient extends Activity {
                 }
                 if(isAudioRun){
                     Message msg = audioHandler.obtainMessage();
-                    msg.obj = audioHelper.getVolume();
-                    if((double)msg.obj > voicelimit){
+                    double v = audioHelper.getVolume();
+                    long dates = tsh.getMydate_local();
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble("volume", v);
+                    bundle.putLong("timeStamp", dates);
+                    msg.setData(bundle);
+                    if(v > maxVolume){
+                        maxVolume = v;
+                        maxVolumeBundle.putDouble("maxVolume", maxVolume);
+                        maxVolumeBundle.putLong("timeStamp", dates);
+                    }
+                    if(v > voicelimit){
                         curThresholdTimeStamp = System.currentTimeMillis();
                         if(curThresholdTimeStamp - lastThresholdTimeStamp > 2000){
-                            if((double)msg.obj > maxVolume){
-                                maxVolume = (double)msg.obj;
-                            }
                             audioHandler.sendMessage(msg);
-
                         }
                         lastThresholdTimeStamp = curThresholdTimeStamp;
                     }else {
-                        if((double)msg.obj > maxVolume){
-                            maxVolume = (double)msg.obj;
-                        }
                         audioHandler.sendMessage(msg);
 
                     }
@@ -215,15 +219,17 @@ public class FuncTcpClient extends Activity {
                         btnControlAudio.setText("监听声音:OFF");
                         audioHelper.stopRecord();
                         needStop = true;
-
+                        double tempV = maxVolumeBundle.getDouble("maxVolume");
+                        long tempT = maxVolumeBundle.getLong("timeStamp");
                         Message messagevoi = Message.obtain();
-                        messagevoi.what = 1;
-                        messagevoi.obj = "最大音量："+maxVolume+"\n";
+                        messagevoi.what = 5;
+                        messagevoi.obj = "最大音量："+tempV+"\n"+"时间戳："+tempT+"\n";
                         myHandler.sendMessage(messagevoi);
                         exec.execute(new Runnable() {
                             @Override
                             public void run() {
-                                tcpClient.send("最大音量:" + maxVolume);
+                                tcpClient.send("maxV:" + maxVolumeBundle.getDouble("maxVolume")
+                                        + "时间戳：" + maxVolumeBundle.getLong("timeStamp") + "\n");
                             }
                         });
                     }
@@ -312,14 +318,17 @@ public class FuncTcpClient extends Activity {
                                 audioHelper.stopRecord();
                                 needStop = true;
 
+                                double tempV = maxVolumeBundle.getDouble("maxVolume");
+                                long tempT = maxVolumeBundle.getLong("timeStamp");
                                 Message messagevoi = Message.obtain();
-                                messagevoi.what = 1;
-                                messagevoi.obj = "最大音量："+maxVolume+"\n";
+                                messagevoi.what = 5;
+                                messagevoi.obj = "最大音量："+tempV+"\n"+"时间戳："+tempT+"\n";
                                 myHandler.sendMessage(messagevoi);
                                 exec.execute(new Runnable() {
                                     @Override
                                     public void run() {
-                                        tcpClient.send("最大音量:" + maxVolume);
+                                        tcpClient.send("maxV:" + maxVolumeBundle.getDouble("maxVolume")
+                                                + "时间戳：" + maxVolumeBundle.getLong("timeStamp") + "\n");
                                     }
                                 });
                             }
@@ -396,6 +405,9 @@ public class FuncTcpClient extends Activity {
                     case 4:
                         txtSend.append("发送时间戳:"+msg.obj.toString()+"\n");
                         break;
+                    case 5:
+                        txtRcv.append(msg.obj.toString()+"\n");
+
                 }
             }
         }
@@ -410,14 +422,15 @@ public class FuncTcpClient extends Activity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if(mActivity != null){
-                double db = (double) msg.obj;
+                Bundle bundle = msg.getData();
+                double db = bundle.getDouble("volume");
+                long dates = bundle.getLong("timeStamp");
                 String dbs = String.format("%.2f", db);
                 txtVolume.setText(dbs);
                 if(db > voicelimit){
                     needPause = true;
                     Message msg1 = myHandler.obtainMessage();
-                    long dates = tsh.getMydate_local();
-                    Log.d(TAG, "handleMessage: "+tsh.getMydate());
+                    Log.d(TAG, "handleMessage: "+tsh.getMydate()+" "+dates);
                     msg1.what = 3;
                     msg1.obj = String.valueOf(dates);
                     myHandler.sendMessage(msg1);
