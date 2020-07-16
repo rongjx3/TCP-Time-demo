@@ -51,6 +51,7 @@ public class FuncTcpServer extends Activity {
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private TimeStampHelper tsh = new TimeStampHelper();
     private long last_diff=9999, last_last_diff=9999;
+    private int count = 0;
     private boolean isAudioRun = false;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     //private AudioHandler audioHandler = new AudioHandler(this);
@@ -258,8 +259,9 @@ public class FuncTcpServer extends Activity {
                                         }
                                     });
 
-                                    if(Math.abs(diff)>5 || Math.abs(last_diff)>7 || Math.abs(last_last_diff)>10)
+                                    if((Math.abs(diff)>5 || Math.abs(last_diff)>10) && count < 100)
                                     {
+                                        count ++;
                                         last_last_diff = last_diff;
                                         last_diff = diff;
                                         getfromp1 = false;
@@ -278,9 +280,13 @@ public class FuncTcpServer extends Activity {
                                             }
                                         });
                                     }
-                                    else
+                                    else if(count < 100)
                                     {
                                         txtSend.append("矫正时间戳完成！");
+                                    }
+                                    else
+                                    {
+                                        txtSend.append("矫正时间戳失败，请优化网络环境并重试！");
                                     }
                                 }
                             } else {
@@ -457,6 +463,7 @@ public class FuncTcpServer extends Activity {
                     correcting = true;
                     last_diff = 9999;
                     last_last_diff = 9999;
+                    count = 0;
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
