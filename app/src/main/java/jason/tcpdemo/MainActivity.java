@@ -34,17 +34,17 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
             switch (compoundButton.getId()){
                 case R.id.radio_Server:
                     if (b){
-                        txtShowFunc.setText("你选则的功能是：服务器");
+                        txtShowFunc.setText("你选则的位置是：计时员");
                     }
                     break;
                 case R.id.radio_Client1:
                     if (b){
-                        txtShowFunc.setText("你选则的功能是：客户端1");
+                        txtShowFunc.setText("你选则的位置是：炮位1");
                     }
                     break;
                 case R.id.radio_Client2:
                     if (b){
-                        txtShowFunc.setText("你选则的功能是：客户端2");
+                        txtShowFunc.setText("你选则的位置是：炮位2");
                     }
                     break;
             }

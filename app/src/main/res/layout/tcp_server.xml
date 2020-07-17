@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="本机ip:"/>
+                android:text="网络地址:"/>
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="2"
@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="port1"/>
+                android:text="炮位1"/>
 
             <EditText
                 android:id="@+id/edit_Server_Port1"
@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="port2"/>
+                android:text="炮位2"/>
 
             <EditText
                 android:id="@+id/edit_Server_Port2"
@@ -76,135 +76,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_weight="2">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_weight="3"
-                android:gravity="center"
-                android:id="@+id/txt_timecorrect"
-                android:layout_gravity="center_vertical"
-                android:textSize="20dp"
-                android:text="[标定误差]"
-                android:background="@drawable/textview_border"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            >
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_tcpServerCheckTime"
-                android:text="2.时间标定"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_weight="3"
-                android:gravity="center"
-                android:text="*请在网络条件较好的环境下多次点击，直到标定误差在10ms以内"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_weight="2">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_weight="3"
-                android:gravity="center"
-                android:id="@+id/txt_timeresult"
-                android:layout_gravity="center_vertical"
-                android:textSize="20dp"
-                android:background="@drawable/textview_border"
-                android:text="[时间差]"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            >
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_tcpServerListenTime"
-                android:text="3.远程开关:OFF"/>
-            <Button
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_tcpServerSwitch"
-                android:text="最大值时间差"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_weight="1">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:layout_weight="2">
-            <TextView
-                android:layout_gravity="center_vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="声音阈值:"/>
-            <EditText
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="70"
-                android:id="@+id/edit_tcpServerVoiceLimit"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="设置客户端声音阈值"
-                android:id="@+id/btn_tcpServerVoiceLimit"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:layout_weight="2">
 
         <LinearLayout
@@ -219,25 +90,28 @@
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:text="消息区：" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="连接测试"
-                android:id="@+id/btn_tcpServerTest"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="清除消息区"
-                android:id="@+id/btn_tcpCleanServerRecv"/>
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="5"
             android:layout_height="match_parent"
-            android:id="@+id/txt_ServerRcv"
+            android:id="@+id/txt_ServerMess"
             android:background="@android:color/holo_blue_light"
             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一步"
+            android:id="@+id/btn_tcpServerNext1"/>
+
     </LinearLayout>
 
 

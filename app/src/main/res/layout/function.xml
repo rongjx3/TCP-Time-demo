@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="left"
     android:layout_marginTop="30dp"
-    android:text="请选择对应功能:"/>
+    android:text="请选择对应位置:"/>
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,24 +16,24 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="服务器(Server)"
+            android:text="计时员"
             android:checked="true"
             android:id="@+id/radio_Server"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="客户端1(Client1)"
+            android:text="炮位1"
             android:id="@+id/radio_Client1"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="客户端2(Client2)"
+            android:text="炮位2"
             android:id="@+id/radio_Client2"/>
     </RadioGroup>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="你选则的功能是：服务器"
+        android:text="你选则的位置是：计时员"
         android:layout_marginTop="20dp"
         android:id="@+id/txt_ShowFunction"/>
 
