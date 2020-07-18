@@ -192,7 +192,7 @@ public class FuncTcpServer extends Activity {
                     break;
                 case R.id.btn_tcpServerNext1:
                     Intent intent = new Intent();
-                    intent.setClass(FuncTcpServer.this,FuncTcpServer_2.class);
+                    intent.setClass(FuncTcpServer.this,FuncTcpServer_2_beep.class);
                     startActivity(intent);
                     break;
 

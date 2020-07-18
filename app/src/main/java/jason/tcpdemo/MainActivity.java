@@ -16,6 +16,7 @@ import org.w3c.dom.Text;
 
 import jason.tcpdemo.funcs.FuncTcpClient;
 import jason.tcpdemo.funcs.FuncTcpServer;
+import jason.tcpdemo.funcs.FuncTcpServer_2_beep;
 import jason.tcpdemo.util.PermissionsUtil;
 
 public class MainActivity extends Activity implements PermissionsUtil.IPermissionsCallback{
@@ -88,6 +89,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         getPermission();
         bindID();
         bindListener();
+        FuncTcpServer_2_beep.beepContext = MainActivity.this;
     }
 
     private void bindID() {
