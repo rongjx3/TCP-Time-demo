@@ -1,5 +1,7 @@
 package jason.tcpdemo.funcs;
 
+import android.os.SystemClock;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
