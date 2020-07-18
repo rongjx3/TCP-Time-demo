@@ -191,6 +191,44 @@ public class FuncTcpClient_2 extends Activity {
                     if(!isAudioRun && isfirstListen){
                         maxVolume = 0;
                         isCaptureVolume = false;
+                        btnControlAudio.setText("监听声音:ON");
+                        audioHelper.startRecord();
+                        audioListenThread.start();
+                        isfirstListen = false;
+                    }else if(!isAudioRun && !isfirstListen){
+                        //第二次
+                        maxVolume = 0;
+                        isCaptureVolume = false;
+                        btnControlAudio.setText("监听声音:ON");
+                        audioHelper.startRecord();
+                        synchronized (lock){
+                            lock.notify();
+                        }
+                    } else {
+                        //再按开始
+                        btnControlAudio.setText("监听声音:OFF");
+                        audioHelper.stopRecord();
+                        needStop = true;
+
+                        double tempV = maxVolumeBundle.getDouble("maxVolume");
+                        long tempT = maxVolumeBundle.getLong("timeStamp");
+                        Message messagevoi = Message.obtain();
+                        messagevoi.what = 5;
+                        messagevoi.obj = "最大音量："+tempV+"\n"+"时间戳："+tempT;
+                        myHandler.sendMessage(messagevoi);
+                        exec.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                myapp.tcpClient.send("maxV:" + maxVolumeBundle.getDouble("maxVolume")
+                                        + "maxTimeStamp:" + maxVolumeBundle.getLong("timeStamp")
+                                        + "overTimeStamp:" + maxVolumeBundle.getLong("overTimeStamp") + "\n");
+                            }
+                        });
+                    }
+                    isAudioRun = !isAudioRun;
+                    /*if(!isAudioRun && isfirstListen){
+                        maxVolume = 0;
+                        isCaptureVolume = false;
                         btnControlAudio.setText("监听声音:开");
                         audioHelper.startRecord();
                         audioListenThread.start();
@@ -224,7 +262,7 @@ public class FuncTcpClient_2 extends Activity {
                             }
                         });
                     }
-                    isAudioRun = !isAudioRun;
+                    isAudioRun = !isAudioRun;*/
                     break;
                 case R.id.btn_tcpClientLock:
                     if(isLock)
@@ -239,8 +277,8 @@ public class FuncTcpClient_2 extends Activity {
                         btnTimeCorrect.setEnabled(true);
                         btnControlAudio.setEnabled(true);
                         btnPrev2.setEnabled(true);
-                        editTimeCorrect.setFocusable(true);
-                        editClientSend.setFocusable(true);
+                        editTimeCorrect.setEnabled(true);
+                        editClientSend.setEnabled(true);
                     }
                     else
                     {
@@ -254,8 +292,8 @@ public class FuncTcpClient_2 extends Activity {
                         btnTimeCorrect.setEnabled(false);
                         btnControlAudio.setEnabled(false);
                         btnPrev2.setEnabled(false);
-                        editTimeCorrect.setFocusable(false);
-                        editClientSend.setFocusable(false);
+                        editTimeCorrect.setEnabled(false);
+                        editClientSend.setEnabled(false);
                     }
                     break;
                 case R.id.btn_tcpClientPrev2:
