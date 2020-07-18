@@ -20,6 +20,7 @@ import jason.tcpdemo.util.PermissionsUtil;
 
 public class MainActivity extends Activity implements PermissionsUtil.IPermissionsCallback{
 
+    private MyApp myapp;
     private RadioButton radioBtnServer,radioBtnClient1,radioBtnClient2;
     private Button btnFuncEnsure;
     private TextView txtShowFunc;
@@ -34,17 +35,17 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
             switch (compoundButton.getId()){
                 case R.id.radio_Server:
                     if (b){
-                        txtShowFunc.setText("你选则的位置是：计时员");
+                        txtShowFunc.setText("你选择的位置是：计时员");
                     }
                     break;
                 case R.id.radio_Client1:
                     if (b){
-                        txtShowFunc.setText("你选则的位置是：炮位1");
+                        txtShowFunc.setText("你选择的位置是：炮位1");
                     }
                     break;
                 case R.id.radio_Client2:
                     if (b){
-                        txtShowFunc.setText("你选则的位置是：炮位2");
+                        txtShowFunc.setText("你选择的位置是：炮位2");
                     }
                     break;
             }
@@ -59,15 +60,18 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                 case R.id.btn_FunctionEnsure:
                     Intent intent = new Intent();
                     if (radioBtnServer.isChecked()){
+                        myapp.name="你的位置：计时员";
                         intent.setClass(MainActivity.this,FuncTcpServer.class);
                         startActivity(intent);
                     }
                     if (radioBtnClient1.isChecked()){
+                        myapp.name="你的位置：炮位1";
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1232");
                         startActivity(intent);
                     }
                     if (radioBtnClient2.isChecked()){
+                        myapp.name="你的位置：炮位2";
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1233");
                         startActivity(intent);
@@ -80,6 +84,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.function);
+        myapp = (MyApp) this.getApplication();
         getPermission();
         bindID();
         bindListener();

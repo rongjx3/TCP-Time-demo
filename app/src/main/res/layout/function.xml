@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="left"
     android:layout_marginTop="30dp"
+    android:textSize="25dp"
     android:text="请选择对应位置:"/>
     <RadioGroup
         android:layout_width="wrap_content"
@@ -16,31 +17,35 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="25dp"
             android:text="计时员"
             android:checked="true"
             android:id="@+id/radio_Server"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="25dp"
             android:text="炮位1"
             android:id="@+id/radio_Client1"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="25dp"
             android:text="炮位2"
             android:id="@+id/radio_Client2"/>
     </RadioGroup>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="你选则的位置是：计时员"
-        android:layout_marginTop="20dp"
+        android:textSize="25dp"
+        android:text="你选择的位置是：计时员"
+        android:layout_marginTop="30dp"
         android:id="@+id/txt_ShowFunction"/>
 
     <Button
         android:id="@+id/btn_FunctionEnsure"
         style="@android:style/Widget.Button.Inset"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"

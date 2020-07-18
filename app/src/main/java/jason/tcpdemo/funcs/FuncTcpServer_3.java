@@ -91,7 +91,17 @@ public class FuncTcpServer_3 extends Activity {
                         if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring:" + sta);
-                            if (sta.equals("time:")) {
+                            if (sta.equals("[新的客户"))
+                            {
+                                exec.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        myapp.tcpServer1.SST.get(0).send("[已作为 炮位1 连入服务器]");
+                                    }
+                                });
+                                txtHistory.append("[炮位1]"+msg.obj.toString());
+                            }
+                            else if (sta.equals("time:")) {
                                 String mun = mess.substring(5, mess.length()-1);
                                 long ot = Long.parseLong(mun);
                                 //txtSend.append("[port1]时间戳："+mun+"\n");
@@ -122,7 +132,20 @@ public class FuncTcpServer_3 extends Activity {
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
 
                                     messageMaxDiff.what = 4;
-                                    messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
+                                    //messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
+                                    if(diffMax>0)
+                                    {
+                                        messageMaxDiff.obj = "[炮位1]比[炮位2]慢了:"+diffMax+"ms";
+                                    }
+                                    else if(diffMax<0)
+                                    {
+                                        diffMax = -diffMax;
+                                        messageMaxDiff.obj = "[炮位2]比[炮位1]慢了:"+diffMax+"ms";
+                                    }
+                                    else
+                                    {
+                                        messageMaxDiff.obj = "[炮位1]和[炮位2]时间一致";
+                                    }
                                     myHandler.sendMessage(messageMaxDiff);
 
                                 } else {
@@ -191,7 +214,20 @@ public class FuncTcpServer_3 extends Activity {
                                             +"阈值时间差[port1-port2]："+diffOver+"\n";*/
 
                                     messageMaxDiff.what = 4;
-                                    messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
+                                    //messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
+                                    if(diffMax>0)
+                                    {
+                                        messageMaxDiff.obj = "[炮位1]比[炮位2]慢了:"+diffMax+"ms";
+                                    }
+                                    else if(diffMax<0)
+                                    {
+                                        diffMax = -diffMax;
+                                        messageMaxDiff.obj = "[炮位2]比[炮位1]慢了:"+diffMax+"ms";
+                                    }
+                                    else
+                                    {
+                                        messageMaxDiff.obj = "[炮位1]和[炮位2]时间一致";
+                                    }
                                     myHandler.sendMessage(messageMaxDiff);
 
                                 } else {

@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".funcs.FuncTcpClient"/>
+        <activity android:name=".funcs.FuncTcpClient_2"/>
         <activity android:name=".funcs.FuncTcpServer"/>
         <activity android:name=".funcs.FuncTcpServer_2"/>
         <activity android:name=".funcs.FuncTcpServer_3"/>

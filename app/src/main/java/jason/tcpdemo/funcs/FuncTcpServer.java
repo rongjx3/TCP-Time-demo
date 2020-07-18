@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemClock;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -43,8 +44,7 @@ import static android.content.ContentValues.TAG;
 public class FuncTcpServer extends Activity {
     private MyApp myapp;
     private Button btnStartServer,btnNext1;
-    private TextView txtMess,txtServerIp;
-    private EditText editServerPort1,editServerPort2;
+    private TextView txtConnStatus1, txtConnStatus2, txtServerIp;
     private MyBtnClicker myBtnClicker = new MyBtnClicker();
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
@@ -79,8 +79,7 @@ public class FuncTcpServer extends Activity {
                 String mess;
                 switch (msg.what){
                     case 1:
-                        mess = msg.obj.toString();
-                        txtMess.append(msg.obj.toString());
+
                         break;
                     case 2:
                         mess = msg.obj.toString();
@@ -95,20 +94,14 @@ public class FuncTcpServer extends Activity {
                                         myapp.tcpServer1.SST.get(0).send("[已作为 炮位1 连入服务器]");
                                     }
                                 });
-                                txtMess.append("[炮位1]"+msg.obj.toString());
+                                String str="<font color='#00dd00'>已连接</font>";
+                                txtConnStatus1.setText(Html.fromHtml(str));
                                 isport1in = true;
                                 if(isport1in && isport2in)
                                 {
                                     btnNext1.setEnabled(true);
                                 }
                             }
-                            else {
-                                txtMess.append("[炮位1]"+msg.obj.toString());
-                            }
-                        }
-                        else
-                        {
-                            txtMess.append("[炮位1]"+msg.obj.toString());
                         }
                         //txtRcv.append("[port1]"+msg.obj.toString());
                         break;
@@ -125,20 +118,14 @@ public class FuncTcpServer extends Activity {
                                         myapp.tcpServer2.SST.get(0).send("[已作为 炮位2 连入服务器]");
                                     }
                                 });
-                                txtMess.append("[炮位2]"+msg.obj.toString());
+                                String str="<font color='#00dd00'>已连接</font>";
+                                txtConnStatus2.setText(Html.fromHtml(str));
                                 isport2in = true;
                                 if(isport1in && isport2in)
                                 {
                                     btnNext1.setEnabled(true);
                                 }
                             }
-                            else {
-                                txtMess.append("[炮位2]"+msg.obj.toString());
-                            }
-                        }
-                        else
-                        {
-                            txtMess.append("[炮位2]"+msg.obj.toString());
                         }
                         //txtRcv.append("[port2]"+msg.obj.toString());
                         break;
@@ -198,9 +185,9 @@ public class FuncTcpServer extends Activity {
                     Log.i("A", "onClick: 开始");
                     btnStartServer.setEnabled(false);
                     btnStartServer.setText("已开启服务器");
-                    myapp.tcpServer1 = new TcpServer(getHost(editServerPort1.getText().toString()),"1");
+                    myapp.tcpServer1 = new TcpServer(getHost("1232"),"1");
                     exec.execute(myapp.tcpServer1);
-                    myapp.tcpServer2 = new TcpServer(getHost(editServerPort2.getText().toString()),"2");
+                    myapp.tcpServer2 = new TcpServer(getHost("1233"),"2");
                     exec.execute(myapp.tcpServer2);
                     break;
                 case R.id.btn_tcpServerNext1:
@@ -246,10 +233,9 @@ public class FuncTcpServer extends Activity {
     private void bindID() {
         btnStartServer = (Button) findViewById(R.id.btn_tcpServerConn);
         btnNext1 = (Button) findViewById(R.id.btn_tcpServerNext1);
-        txtMess = (TextView) findViewById(R.id.txt_ServerMess);
+        txtConnStatus1 = (TextView) findViewById(R.id.txt_ServerConnStatus1);
+        txtConnStatus2 = (TextView) findViewById(R.id.txt_ServerConnStatus2);
         txtServerIp = (TextView) findViewById(R.id.txt_Server_Ip);
-        editServerPort1 = (EditText)findViewById(R.id.edit_Server_Port1);
-        editServerPort2 = (EditText)findViewById(R.id.edit_Server_Port2);
     }
 
     /**
