@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -64,6 +65,36 @@ public class FuncTcpServer_3 extends Activity {
     public static Context context;
     ExecutorService exec = Executors.newCachedThreadPool();
 
+    private void showResult() {
+        long diffMax = tsh1.calcul_client_diff();
+        long diffOver = tsh2.calcul_client_diff();
+        diff_Max = diffMax;
+        diff_Over = diffOver;
+        Message messageMaxDiff = Message.obtain();
+                                    /*messageMaxDiff.what = 1;
+                                    messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
+                                            +"[port2]最大值时间戳："+tempT+"\n"
+                                            +"最大值时间差[port1-port2]："+diffMax+"\n"
+                                            +"[port2]阈值时间戳："+overTempT+"\n"
+                                            +"阈值时间差[port1-port2]："+diffOver+"\n";*/
+
+        messageMaxDiff.what = 4;
+        //messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
+        if(diffMax>0)
+        {
+            messageMaxDiff.obj = "[炮位1]比[炮位2]慢了:"+diffMax+"ms";
+        }
+        else if(diffMax<0)
+        {
+            diffMax = -diffMax;
+            messageMaxDiff.obj = "[炮位2]比[炮位1]慢了:"+diffMax+"ms";
+        }
+        else
+        {
+            messageMaxDiff.obj = "[炮位1]和[炮位2]时间一致";
+        }
+        myHandler.sendMessage(messageMaxDiff);
+    }
 
 
     private class MyHandler extends android.os.Handler{
@@ -84,7 +115,8 @@ public class FuncTcpServer_3 extends Activity {
                         break;
                     case 4:
                         txtServerResult.setText(msg.obj.toString());
-                        txtHistory.append(msg.obj.toString()+"\n");
+                        String da = tsh.getDateToString();
+                        txtHistory.append(da+":"+msg.obj.toString()+"\n");
                         break;
                     case 5:
                         mess = msg.obj.toString();
@@ -119,34 +151,7 @@ public class FuncTcpServer_3 extends Activity {
                                 tsh2.setClientdate1(overTempT);
                                 getMaxFromp1 = true;
                                 if(getMaxFromp1 && getMaxFromp2){
-                                    long diffMax = tsh1.calcul_client_diff();
-                                    long diffOver = tsh2.calcul_client_diff();
-                                    diff_Max = diffMax;
-                                    diff_Over = diffOver;
-                                    Message messageMaxDiff = Message.obtain();
-                                    /*messageMaxDiff.what = 1;
-                                    messageMaxDiff.obj = "[port1]最大音量："+tempV+"\n"
-                                            +"[port1]最大值时间戳："+tempT+"\n"
-                                            +"最大值时间差[port1-port2]："+diffMax+"\n"
-                                            +"[port1]阈值时间戳："+overTempT+"\n"
-                                            +"阈值时间差[port1-port2]："+diffOver+"\n";*/
-
-                                    messageMaxDiff.what = 4;
-                                    //messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
-                                    if(diffMax>0)
-                                    {
-                                        messageMaxDiff.obj = "[炮位1]比[炮位2]慢了:"+diffMax+"ms";
-                                    }
-                                    else if(diffMax<0)
-                                    {
-                                        diffMax = -diffMax;
-                                        messageMaxDiff.obj = "[炮位2]比[炮位1]慢了:"+diffMax+"ms";
-                                    }
-                                    else
-                                    {
-                                        messageMaxDiff.obj = "[炮位1]和[炮位2]时间一致";
-                                    }
-                                    myHandler.sendMessage(messageMaxDiff);
+                                    showResult();
 
                                 } else {
                                     /*Message msgPort1 = Message.obtain();
@@ -201,34 +206,7 @@ public class FuncTcpServer_3 extends Activity {
                                 tsh1.setClientdate2(tempT);
                                 getMaxFromp2 = true;
                                 if(getMaxFromp1 && getMaxFromp2){
-                                    long diffMax = tsh1.calcul_client_diff();
-                                    long diffOver = tsh2.calcul_client_diff();
-                                    diff_Max = diffMax;
-                                    diff_Over = diffOver;
-                                    Message messageMaxDiff = Message.obtain();
-                                    /*messageMaxDiff.what = 1;
-                                    messageMaxDiff.obj = "[port2]最大音量："+tempV+"\n"
-                                            +"[port2]最大值时间戳："+tempT+"\n"
-                                            +"最大值时间差[port1-port2]："+diffMax+"\n"
-                                            +"[port2]阈值时间戳："+overTempT+"\n"
-                                            +"阈值时间差[port1-port2]："+diffOver+"\n";*/
-
-                                    messageMaxDiff.what = 4;
-                                    //messageMaxDiff.obj = "最大值时间差[炮位1-炮位2]:"+diffMax+"ms";
-                                    if(diffMax>0)
-                                    {
-                                        messageMaxDiff.obj = "[炮位1]比[炮位2]慢了:"+diffMax+"ms";
-                                    }
-                                    else if(diffMax<0)
-                                    {
-                                        diffMax = -diffMax;
-                                        messageMaxDiff.obj = "[炮位2]比[炮位1]慢了:"+diffMax+"ms";
-                                    }
-                                    else
-                                    {
-                                        messageMaxDiff.obj = "[炮位1]和[炮位2]时间一致";
-                                    }
-                                    myHandler.sendMessage(messageMaxDiff);
+                                    showResult();
 
                                 } else {
                                     /*Message msgPort2 = Message.obtain();
@@ -371,7 +349,7 @@ public class FuncTcpServer_3 extends Activity {
     }
 
     private void ini(){
-
+        txtHistory.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
     private void bindListener() {

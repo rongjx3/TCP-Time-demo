@@ -53,6 +53,14 @@ public class TimeStampHelper {
         return mydate;
     }
 
+    public String getDateToString() {
+        long ts = System.currentTimeMillis();
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        Date date = new Date(ts);
+        SimpleDateFormat format = new SimpleDateFormat(pattern);
+        return format.format(date);
+    }
+
     public void setOtherdate(long otherdate) {
         this.otherdate = otherdate;
     }

@@ -62,6 +62,11 @@ public class FuncTcpServer_2_beep extends Activity {
             String mess = msg.obj.toString();
             String sta = mess.substring(0, 5);
             switch (msg.what){
+                case 2:
+                    txtCheckStatus.setText("标定成功，请点击下一步");
+                    btnCheckTime.setText("已标定成功");
+                    btnCheckTime.setEnabled(false);
+                    break;
                 case 5:
                     if(sta.equals("maxV:")) {
                         int loc1 = mess.indexOf("maxTimeStamp");
@@ -95,6 +100,8 @@ public class FuncTcpServer_2_beep extends Activity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.btn_tcpServerCheckTimeBeep:
+                    btnCheckTime.setEnabled(false);
+                    btnCheckTime.setText("正在对齐...");
                     getfromp1 = false;
                     getfromp2 = false;
                     Runnable runnable = new Runnable() {
@@ -183,9 +190,13 @@ public class FuncTcpServer_2_beep extends Activity {
                                     getfromp2 = false;
                                 }
                             }
-                            txtCheckStatus.setText("标定成功，请点击下一步");
-                            btnCheckTime.setText("已标定成功");
-                            btnCheckTime.setEnabled(false);
+                            Message msg = Message.obtain();
+                            msg.what = 2;
+                            msg.obj = "correct succ";
+                            myHandler.sendMessage(msg);
+                            //txtCheckStatus.setText("标定成功，请点击下一步");
+                            //btnCheckTime.setText("已标定成功");
+                            //btnCheckTime.setEnabled(false);
                         }
                     };
                     timeCheckThread = new Thread(runnable);
