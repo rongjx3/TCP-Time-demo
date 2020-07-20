@@ -31,6 +31,8 @@ import jason.tcpdemo.coms.AudioHelper;
 import jason.tcpdemo.coms.CrashHandler;
 import jason.tcpdemo.coms.TcpClient;
 
+import static android.content.ContentValues.TAG;
+
 
 /**
  * Created by Jason Zhu on 2017-04-24.
@@ -63,6 +65,7 @@ public class FuncTcpClient_2 extends Activity {
     private boolean isfirstListen = true;
     private Object lock = new Object();
     private long lastThresholdTimeStamp = System.currentTimeMillis();
+    private long lastheartbeat = 0;
     private long curThresholdTimeStamp = 0;
     private double voicelimit = 70;
     private double maxVolume = 0;
@@ -413,7 +416,14 @@ public class FuncTcpClient_2 extends Activity {
                             if(mess.length()>=5) {
                                 String sta = mess.substring(0, 5);
                                 Log.i(TAG, "substring : " + sta);
-                                if (sta.equals("time:")) {
+                                if (sta.equals("hatbe"))
+                                {
+                                    Log.i(TAG, "get heartbeat from server");
+                                    long hearttime = System.currentTimeMillis();
+
+                                    lastheartbeat = hearttime;
+                                }
+                                else if (sta.equals("time:")) {
                                     String result = mess.substring(5, mess.length()-1);
                                     txtSend.append("差值结果："+result+"\n");
                                 }
@@ -658,18 +668,35 @@ public class FuncTcpClient_2 extends Activity {
             @Override
             public void run() {
 
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                exec.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        myapp.tcpClient.send("hatbe");
+                while(true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                });
+
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            myapp.tcpClient.send("hatbe");
+                        }
+                    });
+
+                    long hearttime = System.currentTimeMillis();
+                    if(lastheartbeat != 0 && hearttime > lastheartbeat + 10000)
+                    {
+                        Toast toast=Toast.makeText(getApplicationContext(), "心跳超时，程序重启！", Toast.LENGTH_SHORT);
+                        toast.show();
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        //android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
+                        System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
+                    }
+                }
             }
         };
         heartbeatThread = new Thread(runnable);

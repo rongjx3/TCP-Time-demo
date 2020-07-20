@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     if (radioBtnServer.isChecked()){
                         myapp.name="你的位置：计时员";
                         editor.putString("position", "jsy");
+                        editor.putString("name", myapp.name);
                         editor.commit();
                         intent.setClass(MainActivity.this,FuncTcpServer.class);
                         startActivity(intent);
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     if (radioBtnClient1.isChecked()){
                         myapp.name="你的位置：炮位1";
                         editor.putString("position", "pw1");
+                        editor.putString("name", myapp.name);
                         editor.commit();
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1232");
@@ -90,6 +92,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     if (radioBtnClient2.isChecked()){
                         myapp.name="你的位置：炮位2";
                         editor.putString("position", "pw2");
+                        editor.putString("name", myapp.name);
                         editor.commit();
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1233");
@@ -185,7 +188,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
             public void run() {
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -197,6 +200,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     SharedPreferences.Editor editor = sp.edit();
                     myapp.name="你的位置：炮位1";
                     editor.putString("position", "pw1");
+                    editor.putString("name", myapp.name);
                     editor.commit();
                     intent.setClass(MainActivity.this, FuncTcpClient.class);
                     intent.putExtra("port","1232");
@@ -208,6 +212,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     SharedPreferences.Editor editor = sp.edit();
                     myapp.name="你的位置：炮位2";
                     editor.putString("position", "pw2");
+                    editor.putString("name", myapp.name);
                     editor.commit();
                     intent.setClass(MainActivity.this, FuncTcpClient.class);
                     intent.putExtra("port","1233");

@@ -215,6 +215,7 @@ public class FuncTcpClient extends Activity {
     private void Ini(){
         editClientIp.setText(sp.getString("IP", "192.168.1.100"));
         btnNext1.setEnabled(false);
+        myapp.name = sp.getString("name", "炮位");
         txtName.setText(myapp.name);
         isConnecting = false;
         isConnected = false;
@@ -229,7 +230,7 @@ public class FuncTcpClient extends Activity {
             public void run() {
 
                 try {
-                    Thread.sleep(15000);
+                    Thread.sleep(12500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -242,7 +243,7 @@ public class FuncTcpClient extends Activity {
                     exec.execute(myapp.tcpClient);
 
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(2500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -258,6 +259,19 @@ public class FuncTcpClient extends Activity {
                         Intent intent = new Intent();
                         intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
                         startActivity(intent);
+                    }
+                    else
+                    {
+                        Toast toast=Toast.makeText(getApplicationContext(), "心跳超时，程序重启！", Toast.LENGTH_SHORT);
+                        toast.show();
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        //android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
+                        System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
                     }
                 }
             }
