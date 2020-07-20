@@ -70,9 +70,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
             Intent intent = new Intent();
             switch (view.getId()){
                 case R.id.btn_FunctionEnsure:
-
                     isSelect = true;
-                    Intent intent = new Intent();
                     SharedPreferences.Editor editor = sp.edit();
                     if (radioBtnServer.isChecked()){
                         myapp.name="你的位置：计时员";
@@ -99,6 +97,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     }
                     break;
                 case R.id.btn_FunctionHistory:
+                    isSelect = true;
                     intent.setClass(MainActivity.this, FuncHistory.class);
                     startActivity(intent);
                     break;
