@@ -34,8 +34,8 @@ public class FuncHistory extends Activity {
     private View historyList;
     private ListView historyListView;
     private final String HISTORY_PATH = MyApp.mainActivity.getExternalFilesDir(null).toString()+"/HistoryLog";
-    private File historyLogDir = new File(HISTORY_PATH);
-    private File[] fileList = historyLogDir.listFiles();
+    private File historyLogDir = null;
+    private File[] fileList = null;
     private List<HashMap<String, Object>> fileInfoList = new ArrayList<HashMap<String, Object>>();
     private SimpleAdapter simpleAdapter = null;
     private static final String TAG = "FuncHistory";
@@ -44,6 +44,11 @@ public class FuncHistory extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.history_list);
+        historyLogDir = new File(HISTORY_PATH);
+        if(!historyLogDir.exists()){
+            historyLogDir.mkdir();
+        }
+        fileList = historyLogDir.listFiles();
         initLayout();
     }
 
