@@ -552,62 +552,6 @@ public class FuncTcpClient_2 extends Activity {
         System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
     }
 
-    /**
-     * 提示对话框
-     */
-    public void tipDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(FuncTcpClient_2.this);
-        builder.setTitle("警告：");
-        builder.setMessage("网络出现异常，程序即将关闭");
-        builder.setIcon(R.mipmap.ic_launcher);
-        builder.setCancelable(false);            //点击对话框以外的区域是否让对话框消失
-
-        //设置正面按钮
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Toast.makeText(FuncTcpClient_2.this, "你点击了确定", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
-                System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
-            }
-        });
-        //设置反面按钮
-        /*builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(FuncTcpClient_2.this, "你点击了取消", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });*/
-        //设置中立按钮
-        /*builder.setNeutralButton("保密", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(FuncTcpClient_2.this, "你选择了中立", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });*/
-
-        AlertDialog dialog = builder.create();      //创建AlertDialog对象
-        //对话框显示的监听事件
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Log.e(TAG, "对话框显示了");
-            }
-        });
-        //对话框消失的监听事件
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                Log.e(TAG, "对话框消失了");
-            }
-        });
-
-        dialog.show();                              //显示对话框
-    }
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tcp_client_2);
@@ -663,6 +607,10 @@ public class FuncTcpClient_2 extends Activity {
         txtName.setText(myapp.name);
         txtSend.setMovementMethod(ScrollingMovementMethod.getInstance());
         txtRcv.setMovementMethod(ScrollingMovementMethod.getInstance());
+        String cor = editTimeCorrect.getText().toString();
+
+        long corr = Long.parseLong(cor);
+        tsh.setCorrect(corr);
 
         Runnable runnable = new Runnable() {
             @Override
@@ -685,7 +633,7 @@ public class FuncTcpClient_2 extends Activity {
                     long hearttime = System.currentTimeMillis();
                     if(lastheartbeat != 0 && hearttime > lastheartbeat + 10000)
                     {
-                        Toast toast=Toast.makeText(getApplicationContext(), "心跳超时，程序重启！", Toast.LENGTH_SHORT);
+                        Toast toast=Toast.makeText(FuncTcpClient_2.this, "心跳超时，程序重启！", Toast.LENGTH_SHORT);
                         toast.show();
                         try {
                             Thread.sleep(1000);

@@ -63,7 +63,9 @@ public class FuncTcpServer_3 extends Activity {
     private boolean isAudioRun = false;
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
     private long diff_Max = 0,diff_Over = 0;
+    private long lastheartbeat1 = 0, lastheartbeat2 = 0;
     private Object lock = new Object();
+    private Thread AutoThread, heartbeatThread;
     private final String HISTORY_PATH = MyApp.mainActivity.getExternalFilesDir(null).toString()+"/HistoryLog";
     //storage/emulated/0/Android/data/jason.tcpdemo/files
     private FileWriter writer = null;
@@ -127,7 +129,7 @@ public class FuncTcpServer_3 extends Activity {
                 switch (msg.what){
                     case 1:
                         mess = msg.obj.toString();
-                        txtHistory.append(msg.obj.toString());
+                        txtHistory.append(msg.obj.toString()+"\n");
                         break;
                     case 4:
                         txtServerResult.setText(msg.obj.toString());
@@ -150,6 +152,9 @@ public class FuncTcpServer_3 extends Activity {
                                         myapp.tcpServer1.SST.get(0).send("hatbe");
                                     }
                                 });*/
+                                long hearttime = System.currentTimeMillis();
+
+                                lastheartbeat1 = hearttime;
                             }
                             else if (sta.equals("[新的客户"))
                             {
@@ -215,6 +220,9 @@ public class FuncTcpServer_3 extends Activity {
                                         myapp.tcpServer2.SST.get(0).send("hatbe");
                                     }
                                 });*/
+                                long hearttime = System.currentTimeMillis();
+
+                                lastheartbeat2 = hearttime;
                             }
                             else if (sta.equals("[新的客户"))
                             {
@@ -401,6 +409,55 @@ public class FuncTcpServer_3 extends Activity {
 
     private void ini(){
         txtHistory.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+
+                while(true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    long hearttime = System.currentTimeMillis();
+                    if(lastheartbeat1 != 0 && hearttime > lastheartbeat1 + 10000)
+                    {
+                        Message msgloss = Message.obtain();
+                        msgloss.what = 1;
+                        msgloss.obj = "炮位1心跳超时，建议重启！";
+                        myHandler.sendMessage(msgloss);
+                        //Toast toast=Toast.makeText(FuncTcpServer_3.this, "炮位1心跳超时，建议重启！", Toast.LENGTH_SHORT);
+                        //toast.show();
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    if(lastheartbeat2 != 0 && hearttime > lastheartbeat2 + 10000)
+                    {
+                        Message msgloss = Message.obtain();
+                        msgloss.what = 1;
+                        msgloss.obj = "炮位2心跳超时，建议重启！";
+                        myHandler.sendMessage(msgloss);
+                        //Toast toast=Toast.makeText(FuncTcpServer_3.this, "炮位2心跳超时，建议重启！", Toast.LENGTH_SHORT);
+                        //toast.show();
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            }
+        };
+        heartbeatThread = new Thread(runnable);
+        heartbeatThread.start();
     }
 
     private void bindListener() {

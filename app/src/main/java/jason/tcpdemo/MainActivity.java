@@ -11,6 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -119,6 +120,9 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         bindID();
         bindListener();
         MyApp.mainActivity = MainActivity.this;
+
+        Toast toast=Toast.makeText(MainActivity.this, "欢迎使用！", Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void bindID() {

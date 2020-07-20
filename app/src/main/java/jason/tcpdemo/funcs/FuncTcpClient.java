@@ -262,7 +262,7 @@ public class FuncTcpClient extends Activity {
                     }
                     else
                     {
-                        Toast toast=Toast.makeText(getApplicationContext(), "心跳超时，程序重启！", Toast.LENGTH_SHORT);
+                        Toast toast=Toast.makeText(FuncTcpClient.this, "心跳超时，程序重启！", Toast.LENGTH_SHORT);
                         toast.show();
                         try {
                             Thread.sleep(1000);
