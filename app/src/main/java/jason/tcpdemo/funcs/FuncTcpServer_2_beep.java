@@ -36,14 +36,14 @@ public class FuncTcpServer_2_beep extends Activity {
     private TextView txtCheckStatus;
     private boolean getfromp1 = false, getfromp2 = false, correcting = false;
     ExecutorService exec = Executors.newCachedThreadPool();
-    public static MainActivity beepContext;
-    private BeepHelper beepHelper = new BeepHelper(beepContext);
+    private BeepHelper beepHelper = new BeepHelper(MyApp.mainActivity);
     private MyButtonClicker myButtonClicker = new MyButtonClicker();
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private Thread timeCheckThread;
     private MyHandler myHandler = new MyHandler();
     private TimeStampHelper tsh = new TimeStampHelper();
     private long checkTimeLimit = 20;
+    private boolean isStopCheckTime = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +110,9 @@ public class FuncTcpServer_2_beep extends Activity {
                             int successNum = 0;
                             long lastCorrectAmount = 0;
                             while (successNum < 3){
+                                if(isStopCheckTime){
+                                    break;
+                                }
                                 Log.e(TAG, "successNum: "+successNum);
                                 txtCheckStatus.setText("正在标定");
                                 Log.e(TAG, "打开声音监听" );
@@ -126,14 +129,14 @@ public class FuncTcpServer_2_beep extends Activity {
                                     }
                                 });
                                 try {
-                                    Thread.sleep(3000);
+                                    Thread.sleep(1500);
                                 }catch (InterruptedException e){
                                     e.printStackTrace();
                                 }
                                 Log.e(TAG, "蜂鸣。。" );
                                 beepHelper.beep();
                                 try {
-                                    Thread.sleep(3000);
+                                    Thread.sleep(1500);
                                 }catch (InterruptedException e){
                                     e.printStackTrace();
                                 }
@@ -151,7 +154,7 @@ public class FuncTcpServer_2_beep extends Activity {
                                     }
                                 });
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(500);
                                 }catch (InterruptedException e){
                                     e.printStackTrace();
                                 }
@@ -208,6 +211,12 @@ public class FuncTcpServer_2_beep extends Activity {
                     startActivity(intent);
                     break;
                 case R.id.btn_tcpServerPrev2Beep:
+                    isStopCheckTime = true;
+                    try{
+                        timeCheckThread.join();
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
                     finish();
                     break;
             }

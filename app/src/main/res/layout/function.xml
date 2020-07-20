@@ -50,5 +50,12 @@
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
         android:text="确定" />
+    <Button
+        android:id="@+id/btn_FunctionHistory"
+        style="@android:style/Widget.Button.Inset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="查看历史记录" />
 
 </LinearLayout>
