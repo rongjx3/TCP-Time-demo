@@ -1,7 +1,9 @@
 package jason.tcpdemo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +16,7 @@ import androidx.annotation.NonNull;
 
 import org.w3c.dom.Text;
 
+import jason.tcpdemo.coms.CrashHandler;
 import jason.tcpdemo.funcs.FuncTcpClient;
 import jason.tcpdemo.funcs.FuncTcpServer;
 import jason.tcpdemo.funcs.FuncTcpServer_2_beep;
@@ -28,6 +31,11 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
     private MyRadioButtonCheck myRadioButtonCheck = new MyRadioButtonCheck();
     private MyButtonClick myButtonClick = new MyButtonClick();
     private PermissionsUtil permissionsUtil;
+    private SharedPreferences sp;
+    boolean isSelect = false;
+    private Thread AutoThread;
+
+    CrashHandler crashHandler = CrashHandler.getInstance();
 
     private class MyRadioButtonCheck implements RadioButton.OnCheckedChangeListener{
 
@@ -59,20 +67,28 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         public void onClick(View view) {
             switch (view.getId()){
                 case R.id.btn_FunctionEnsure:
+                    isSelect = true;
                     Intent intent = new Intent();
+                    SharedPreferences.Editor editor = sp.edit();
                     if (radioBtnServer.isChecked()){
                         myapp.name="你的位置：计时员";
+                        editor.putString("position", "jsy");
+                        editor.commit();
                         intent.setClass(MainActivity.this,FuncTcpServer.class);
                         startActivity(intent);
                     }
                     if (radioBtnClient1.isChecked()){
                         myapp.name="你的位置：炮位1";
+                        editor.putString("position", "pw1");
+                        editor.commit();
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1232");
                         startActivity(intent);
                     }
                     if (radioBtnClient2.isChecked()){
                         myapp.name="你的位置：炮位2";
+                        editor.putString("position", "pw2");
+                        editor.commit();
                         intent.setClass(MainActivity.this, FuncTcpClient.class);
                         intent.putExtra("port","1233");
                         startActivity(intent);
@@ -85,7 +101,10 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.function);
+
         myapp = (MyApp) this.getApplication();
+        crashHandler.initCrashHandler(myapp);
+        sp = this.getSharedPreferences("IPInfo", Context.MODE_PRIVATE);
         getPermission();
         bindID();
         bindListener();
@@ -127,5 +146,58 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
     @Override
     public void onPermissionsDenied(int requestCode, String... permission) {
 
+    }
+
+    protected void onResume(){
+        super.onResume();
+        isSelect = false;
+        String pos = sp.getString("position", "");
+        if(pos.equals("pw1"))
+        {
+            radioBtnClient1.setChecked(true);
+        }
+        if(pos.equals("pw2"))
+        {
+            radioBtnClient2.setChecked(true);
+        }
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                String posi = sp.getString("position", "");
+                if(!isSelect && posi.equals("pw1"))
+                {
+                    Intent intent = new Intent();
+                    SharedPreferences.Editor editor = sp.edit();
+                    myapp.name="你的位置：炮位1";
+                    editor.putString("position", "pw1");
+                    editor.commit();
+                    intent.setClass(MainActivity.this, FuncTcpClient.class);
+                    intent.putExtra("port","1232");
+                    startActivity(intent);
+                }
+                else if(!isSelect && posi.equals("pw2"))
+                {
+                    Intent intent = new Intent();
+                    SharedPreferences.Editor editor = sp.edit();
+                    myapp.name="你的位置：炮位2";
+                    editor.putString("position", "pw2");
+                    editor.commit();
+                    intent.setClass(MainActivity.this, FuncTcpClient.class);
+                    intent.putExtra("port","1233");
+                    startActivity(intent);
+                }
+
+            }
+        };
+        AutoThread = new Thread(runnable);
+        AutoThread.start();
     }
 }
