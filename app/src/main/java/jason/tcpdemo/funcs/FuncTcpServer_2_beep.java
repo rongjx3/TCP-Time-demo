@@ -109,6 +109,7 @@ public class FuncTcpServer_2_beep extends Activity {
                         public void run() {
                             int successNum = 0;
                             long lastCorrectAmount = 0;
+                            long[] successCort = new long[3];
                             while (successNum < 3){
                                 if(isStopCheckTime){
                                     break;
@@ -170,12 +171,17 @@ public class FuncTcpServer_2_beep extends Activity {
                                     }catch (InterruptedException e){
                                         e.printStackTrace();
                                     }
-                                    exec.execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            myapp.tcpServer1.SST.get(0).send("cort:"+String.valueOf(correctAmount));
-                                        }
-                                    });
+                                    if(Math.abs(correctAmount) >= checkTimeLimit){
+                                        exec.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                myapp.tcpServer1.SST.get(0).send("cort:"+String.valueOf(correctAmount));
+                                            }
+                                        });
+                                    }else {
+                                        successCort[successNum] = correctAmount;
+                                    }
+
                                     try {
                                         Thread.sleep(500);
                                     }catch (InterruptedException e){
@@ -185,6 +191,14 @@ public class FuncTcpServer_2_beep extends Activity {
                                         successNum++;
                                     }else {
                                         successNum = 0;
+                                    }
+                                    if(successNum == 3){
+                                        long avg = 0;
+                                        for(long c : successCort){
+                                            avg += c;
+                                        }
+                                        avg /= 3;
+                                        myapp.tcpServer1.SST.get(0).send("cort:"+String.valueOf(avg));
                                     }
                                 } else {
                                     Log.e(TAG, "run: "+"客户端监听出现错误" );
