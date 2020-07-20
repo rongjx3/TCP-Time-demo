@@ -2,10 +2,13 @@ package jason.tcpdemo.funcs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -27,6 +31,7 @@ import java.util.logging.LogRecord;
 import jason.tcpdemo.MyApp;
 import jason.tcpdemo.R;
 import jason.tcpdemo.coms.AudioHelper;
+import jason.tcpdemo.coms.CrashHandler;
 import jason.tcpdemo.coms.TcpClient;
 
 import static android.content.ContentValues.TAG;
@@ -50,6 +55,8 @@ public class FuncTcpClient extends Activity {
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     ExecutorService exec = Executors.newCachedThreadPool();
+    private SharedPreferences sp;
+    private Thread AutoThread;
     private boolean isAudioRun = false;
     private boolean needPause = false;
     private boolean needStop = false;
@@ -59,8 +66,10 @@ public class FuncTcpClient extends Activity {
     private double voicelimit = 70;
     private double maxVolume = 0;
     private Bundle maxVolumeBundle = new Bundle();
-    private boolean isCaptureVolume = false;
+    private boolean isConnect = false;
     private Bundle overLimitBundle = new Bundle();
+
+    CrashHandler crashHandler = CrashHandler.getInstance();
 
     private void stopThread(){
         synchronized (lock){
@@ -81,6 +90,15 @@ public class FuncTcpClient extends Activity {
                     Log.i(TAG, "onClick: 开始");
                     btnStartClient.setText("连接中...");
                     btnStartClient.setEnabled(false);
+
+                    String rem_ip;
+                    rem_ip = editClientIp.getText().toString();
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("IP", rem_ip);
+                    editor.commit();
+
+                    isConnect = true;
+
                     myapp.tcpClient = new TcpClient(editClientIp.getText().toString(),getPort(port));
                     exec.execute(myapp.tcpClient);
                     break;
@@ -137,6 +155,9 @@ public class FuncTcpClient extends Activity {
                     message.obj = msg;
                     myHandler.sendMessage(message);
                     break;
+                case "Error":
+                    tipToast();
+                    break;
             }
         }
     }
@@ -149,11 +170,73 @@ public class FuncTcpClient extends Activity {
         return Integer.parseInt(msg);
     }
 
+    public void tipToast() {
+        Toast.makeText(FuncTcpClient.this, "网络出现异常，程序即将关闭", Toast.LENGTH_SHORT).show();
+        android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
+        System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
+    }
+
+    public void tipDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(FuncTcpClient.this);
+        builder.setTitle("警告：");
+        builder.setMessage("网络出现异常，程序即将关闭");
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setCancelable(false);            //点击对话框以外的区域是否让对话框消失
+
+        //设置正面按钮
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Toast.makeText(FuncTcpClient_2.this, "你点击了确定", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+                android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
+                System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
+            }
+        });
+        //设置反面按钮
+        /*builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(FuncTcpClient_2.this, "你点击了取消", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });*/
+        //设置中立按钮
+        /*builder.setNeutralButton("保密", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(FuncTcpClient_2.this, "你选择了中立", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });*/
+
+        AlertDialog dialog = builder.create();      //创建AlertDialog对象
+        //对话框显示的监听事件
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Log.e(TAG, "对话框显示了");
+            }
+        });
+        //对话框消失的监听事件
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                Log.e(TAG, "对话框消失了");
+            }
+        });
+
+        dialog.show();                              //显示对话框
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG, "Client ONCREATE");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tcp_client);
         context = this;
         myapp = (MyApp) this.getApplication();
+        sp = this.getSharedPreferences("IPInfo", Context.MODE_PRIVATE);
+        crashHandler.initCrashHandler(myapp);
         Intent intent = getIntent();
         port = intent.getStringExtra("port");
         bindID();
@@ -176,11 +259,52 @@ public class FuncTcpClient extends Activity {
         btnNext1.setOnClickListener(myBtnClicker);
     }
     private void bindReceiver(){
-        IntentFilter intentFilter = new IntentFilter("tcpClientReceiver");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("tcpClientReceiver");
+        intentFilter.addAction("Error");
         registerReceiver(myBroadcastReceiver,intentFilter);
     }
     private void Ini(){
+        editClientIp.setText(sp.getString("IP", "192.168.1.100"));
         btnNext1.setEnabled(false);
         txtName.setText(myapp.name);
+
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if(!isConnect) {
+                    btnStartClient.setText("连接中...");
+                    btnStartClient.setEnabled(false);
+
+                    myapp.tcpClient = new TcpClient(editClientIp.getText().toString(), getPort(port));
+                    exec.execute(myapp.tcpClient);
+
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
+                    startActivity(intent);
+                }
+            }
+        };
+        AutoThread = new Thread(runnable);
+        AutoThread.start();
     }
 }

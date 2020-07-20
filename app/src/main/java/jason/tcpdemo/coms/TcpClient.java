@@ -64,23 +64,26 @@ public class TcpClient implements Runnable{
             try {
                 rcvLen = dis.read(buff);
                 Log.e(TAG, "run: rcvLen:"+ rcvLen);
-                //if(rcvLen > 0)
-                //{
+                if(rcvLen<0)
+                {
+                    //网络意外中断！
+                    Intent intent = new Intent();
+                    intent.setAction("Error");
+                    FuncTcpClient.context.sendBroadcast(intent);//将消息发送给主界面
+                    isRun = false;
+                }
+                else {
                     rcvMsg = new String(buff,0,rcvLen,"utf-8");
                     Log.i(TAG, "run: 收到消息:"+ rcvMsg);
-                    if(rcvLen<0)
-                    {
-                        //网络意外中断！
-
-                    }
-                    Intent intent =new Intent();
+                    Intent intent = new Intent();
                     intent.setAction("tcpClientReceiver");
-                    intent.putExtra("tcpClientReceiver",rcvMsg);
+                    intent.putExtra("tcpClientReceiver", rcvMsg);
                     FuncTcpClient.context.sendBroadcast(intent);//将消息发送给主界面
-                    if (rcvMsg.equals("QuitClient")){   //服务器要求客户端结束
+                    if (rcvMsg.equals("QuitClient")) {   //服务器要求客户端结束
                         isRun = false;
                     }
-                //}
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
