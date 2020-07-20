@@ -141,7 +141,11 @@ public class FuncTcpServer_3 extends Activity {
                         if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring:" + sta);
-                            if (sta.equals("[新的客户"))
+                            if (sta.equals("hatbe"))
+                            {
+                                Log.i(TAG, "get heartbeat from p1");
+                            }
+                            else if (sta.equals("[新的客户"))
                             {
                                 exec.execute(new Runnable() {
                                     @Override
@@ -196,7 +200,11 @@ public class FuncTcpServer_3 extends Activity {
                         if(mess.length()>=5) {
                             String sta = mess.substring(0, 5);
                             Log.i(TAG, "substring : " + sta);
-                            if (sta.equals("[新的客户"))
+                            if (sta.equals("hatbe"))
+                            {
+                                Log.i(TAG, "get heartbeat from p2");
+                            }
+                            else if (sta.equals("[新的客户"))
                             {
                                 exec.execute(new Runnable() {
                                     @Override

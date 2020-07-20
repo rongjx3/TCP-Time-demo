@@ -69,7 +69,8 @@ public class FuncTcpClient_2 extends Activity {
     private Bundle maxVolumeBundle = new Bundle();
     private boolean isCaptureVolume = false;
     private Bundle overLimitBundle = new Bundle();
-    private Thread AutoThread;
+    private Thread AutoThread, heartbeatThread;
+
     CrashHandler crashHandler = CrashHandler.getInstance();
 
     private Runnable runnable = new Runnable() {
@@ -602,7 +603,7 @@ public class FuncTcpClient_2 extends Activity {
         setContentView(R.layout.tcp_client_2);
         context = this;
         myapp = (MyApp) this.getApplication();
-        crashHandler.initCrashHandler(myapp);
+        //crashHandler.initCrashHandler(myapp);
         sp = this.getSharedPreferences("IPInfo", Context.MODE_PRIVATE);
         bindID();
         bindListener();
@@ -652,6 +653,27 @@ public class FuncTcpClient_2 extends Activity {
         txtName.setText(myapp.name);
         txtSend.setMovementMethod(ScrollingMovementMethod.getInstance());
         txtRcv.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                exec.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        myapp.tcpClient.send("hatbe");
+                    }
+                });
+            }
+        };
+        heartbeatThread = new Thread(runnable);
+        heartbeatThread.start();
     }
 
     @Override

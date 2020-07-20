@@ -66,7 +66,7 @@ public class FuncTcpClient extends Activity {
     private double voicelimit = 70;
     private double maxVolume = 0;
     private Bundle maxVolumeBundle = new Bundle();
-    private boolean isConnect = false;
+    private boolean isConnecting = false, isConnected = false;
     private Bundle overLimitBundle = new Bundle();
 
     CrashHandler crashHandler = CrashHandler.getInstance();
@@ -97,7 +97,7 @@ public class FuncTcpClient extends Activity {
                     editor.putString("IP", rem_ip);
                     editor.commit();
 
-                    isConnect = true;
+                    isConnecting = true;
 
                     myapp.tcpClient = new TcpClient(editClientIp.getText().toString(),getPort(port));
                     exec.execute(myapp.tcpClient);
@@ -134,6 +134,7 @@ public class FuncTcpClient extends Activity {
                                 btnStartClient.setText("已连接到计时员");
                                 String str="<font color='#00dd00'>已连接</font>";
                                 txtConnStatus.setText(Html.fromHtml(str));
+                                isConnected = true;
                             }
                         }
                         break;
@@ -176,59 +177,6 @@ public class FuncTcpClient extends Activity {
         System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
     }
 
-    public void tipDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(FuncTcpClient.this);
-        builder.setTitle("警告：");
-        builder.setMessage("网络出现异常，程序即将关闭");
-        builder.setIcon(R.mipmap.ic_launcher);
-        builder.setCancelable(false);            //点击对话框以外的区域是否让对话框消失
-
-        //设置正面按钮
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Toast.makeText(FuncTcpClient_2.this, "你点击了确定", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                android.os.Process.killProcess(android.os.Process.myPid());    //获取PID
-                System.exit(0);   //常规java、c#的标准退出法，返回值为0代表正常退出
-            }
-        });
-        //设置反面按钮
-        /*builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(FuncTcpClient_2.this, "你点击了取消", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });*/
-        //设置中立按钮
-        /*builder.setNeutralButton("保密", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(FuncTcpClient_2.this, "你选择了中立", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });*/
-
-        AlertDialog dialog = builder.create();      //创建AlertDialog对象
-        //对话框显示的监听事件
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Log.e(TAG, "对话框显示了");
-            }
-        });
-        //对话框消失的监听事件
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                Log.e(TAG, "对话框消失了");
-            }
-        });
-
-        dialog.show();                              //显示对话框
-    }
-
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "Client ONCREATE");
         super.onCreate(savedInstanceState);
@@ -268,7 +216,8 @@ public class FuncTcpClient extends Activity {
         editClientIp.setText(sp.getString("IP", "192.168.1.100"));
         btnNext1.setEnabled(false);
         txtName.setText(myapp.name);
-
+        isConnecting = false;
+        isConnected = false;
     }
 
     @Override
@@ -285,7 +234,7 @@ public class FuncTcpClient extends Activity {
                     e.printStackTrace();
                 }
 
-                if(!isConnect) {
+                if(!isConnecting) {
                     btnStartClient.setText("连接中...");
                     btnStartClient.setEnabled(false);
 
@@ -298,9 +247,18 @@ public class FuncTcpClient extends Activity {
                         e.printStackTrace();
                     }
 
-                    Intent intent = new Intent();
-                    intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
-                    startActivity(intent);
+                    if(isConnected) {
+                        exec.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                myapp.tcpClient.send("hatbe");
+                            }
+                        });
+
+                        Intent intent = new Intent();
+                        intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
+                        startActivity(intent);
+                    }
                 }
             }
         };

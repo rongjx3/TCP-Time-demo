@@ -110,7 +110,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         setContentView(R.layout.function);
 
         myapp = (MyApp) this.getApplication();
-        crashHandler.initCrashHandler(myapp);
+        //crashHandler.initCrashHandler(myapp);
         sp = this.getSharedPreferences("IPInfo", Context.MODE_PRIVATE);
         getPermission();
         bindID();
