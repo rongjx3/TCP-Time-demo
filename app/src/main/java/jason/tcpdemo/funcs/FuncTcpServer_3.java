@@ -6,7 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -16,15 +19,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import jason.tcpdemo.MainActivity;
 import jason.tcpdemo.MyApp;
 import jason.tcpdemo.R;
 import jason.tcpdemo.coms.AudioHelper;
@@ -51,6 +64,9 @@ public class FuncTcpServer_3 extends Activity {
     private boolean getMaxFromp1 = false, getMaxFromp2 = false;
     private long diff_Max = 0,diff_Over = 0;
     private Object lock = new Object();
+    private final String HISTORY_PATH = MyApp.mainActivity.getExternalFilesDir(null).toString()+"/HistoryLog";
+    //storage/emulated/0/Android/data/jason.tcpdemo/files
+    private FileWriter writer = null;
 
     private void stopThread(){
         synchronized (lock){
@@ -117,6 +133,8 @@ public class FuncTcpServer_3 extends Activity {
                         txtServerResult.setText(msg.obj.toString());
                         String da = tsh.getDateToString();
                         txtHistory.append(da+":"+msg.obj.toString()+"\n");
+                        String log = da + " " + msg.obj.toString() + "\n";
+                        writeHistoryLog(log);
                         break;
                     case 5:
                         mess = msg.obj.toString();
@@ -346,6 +364,19 @@ public class FuncTcpServer_3 extends Activity {
         bindListener();
         bindReceiver();
         ini();
+        genTodayFile();
+        Log.e(TAG, "HistoryPath"+HISTORY_PATH );
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            writer.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
     private void ini(){
@@ -366,6 +397,46 @@ public class FuncTcpServer_3 extends Activity {
         btnPrev3 = (Button) findViewById(R.id.btn_tcpServerPrev3);
         txtHistory = (TextView) findViewById(R.id.txt_ServerHistory);
         txtServerResult = (TextView) findViewById(R.id.txt_timeresult);
+    }
+
+    private void writeHistoryLog(String info){
+        try{
+            writer.write(info);
+            writer.flush();
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+            Log.e(TAG, "未创建log文件" );
+        }catch (IOException e){
+            e.printStackTrace();
+            Log.e(TAG, "写入错误" );
+        }
+
+    }
+    private void genTodayFile(){
+        File historyDir = new File(HISTORY_PATH);
+        if(!historyDir.exists()){
+            historyDir.mkdir();
+        }
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String todayFilePath = date.format(formatter) + ".txt";
+        File todayFile = new File(HISTORY_PATH, todayFilePath);
+        try{
+            writer = new FileWriter(HISTORY_PATH+"/"+todayFilePath, true);
+            Log.e(TAG, "log文件路径"+ HISTORY_PATH+"/"+todayFilePath);
+        }catch (IOException e){
+            e.printStackTrace();
+            Log.e(TAG, "filewriter路径不存在");
+        }
+
+        if(!todayFile.exists()){
+            try{
+                todayFile.createNewFile();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            Log.e(TAG, "生成今日log文件，todayFilePath："+ todayFilePath );
+        }
     }
 
 }

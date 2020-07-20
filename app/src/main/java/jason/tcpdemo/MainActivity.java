@@ -14,16 +14,18 @@ import androidx.annotation.NonNull;
 
 import org.w3c.dom.Text;
 
+import jason.tcpdemo.funcs.FuncHistory;
 import jason.tcpdemo.funcs.FuncTcpClient;
 import jason.tcpdemo.funcs.FuncTcpServer;
 import jason.tcpdemo.funcs.FuncTcpServer_2_beep;
+import jason.tcpdemo.funcs.FuncTcpServer_3;
 import jason.tcpdemo.util.PermissionsUtil;
 
 public class MainActivity extends Activity implements PermissionsUtil.IPermissionsCallback{
 
     private MyApp myapp;
     private RadioButton radioBtnServer,radioBtnClient1,radioBtnClient2;
-    private Button btnFuncEnsure;
+    private Button btnFuncEnsure, btnFuncHistory;
     private TextView txtShowFunc;
     private MyRadioButtonCheck myRadioButtonCheck = new MyRadioButtonCheck();
     private MyButtonClick myButtonClick = new MyButtonClick();
@@ -57,9 +59,9 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
 
         @Override
         public void onClick(View view) {
+            Intent intent = new Intent();
             switch (view.getId()){
                 case R.id.btn_FunctionEnsure:
-                    Intent intent = new Intent();
                     if (radioBtnServer.isChecked()){
                         myapp.name="你的位置：计时员";
                         intent.setClass(MainActivity.this,FuncTcpServer.class);
@@ -78,6 +80,10 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                         startActivity(intent);
                     }
                     break;
+                case R.id.btn_FunctionHistory:
+                    intent.setClass(MainActivity.this, FuncHistory.class);
+                    startActivity(intent);
+                    break;
             }
         }
     }
@@ -89,7 +95,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         getPermission();
         bindID();
         bindListener();
-        FuncTcpServer_2_beep.beepContext = MainActivity.this;
+        MyApp.mainActivity = MainActivity.this;
     }
 
     private void bindID() {
@@ -98,6 +104,7 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         radioBtnClient2 = (RadioButton) findViewById(R.id.radio_Client2);
         btnFuncEnsure = (Button) findViewById(R.id.btn_FunctionEnsure);
         txtShowFunc = (TextView) findViewById(R.id.txt_ShowFunction);
+        btnFuncHistory = (Button) findViewById(R.id.btn_FunctionHistory);
     }
 
     private void bindListener(){
@@ -105,12 +112,23 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
         radioBtnClient2.setOnCheckedChangeListener(myRadioButtonCheck);
         radioBtnServer.setOnCheckedChangeListener(myRadioButtonCheck);
         btnFuncEnsure.setOnClickListener(myButtonClick);
+        btnFuncHistory.setOnClickListener(myButtonClick);
     }
     private void getPermission(){
         permissionsUtil = PermissionsUtil.with(this)
                 .requestCode(0)
                 .isDebug(true)
                 .permissions(PermissionsUtil.Permission.Microphone.RECORD_AUDIO)
+                .request();
+        permissionsUtil = PermissionsUtil.with(this)
+                .requestCode(0)
+                .isDebug(true)
+                .permissions(PermissionsUtil.Permission.Storage.WRITE_EXTERNAL_STORAGE)
+                .request();
+        permissionsUtil = PermissionsUtil.with(this)
+                .requestCode(0)
+                .isDebug(true)
+                .permissions(PermissionsUtil.Permission.Storage.READ_EXTERNAL_STORAGE)
                 .request();
     }
     @Override
