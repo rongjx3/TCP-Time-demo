@@ -49,16 +49,19 @@ public class MainActivity extends Activity implements PermissionsUtil.IPermissio
                     if (b){
                         txtShowFunc.setText("你选择的位置是：计时员");
                     }
+                    isSelect = true;
                     break;
                 case R.id.radio_Client1:
                     if (b){
                         txtShowFunc.setText("你选择的位置是：炮位1");
                     }
+                    isSelect = true;
                     break;
                 case R.id.radio_Client2:
                     if (b){
                         txtShowFunc.setText("你选择的位置是：炮位2");
                     }
+                    isSelect = true;
                     break;
             }
         }
