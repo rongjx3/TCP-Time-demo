@@ -426,7 +426,7 @@ public class FuncTcpServer_3 extends Activity {
                     {
                         Message msgloss = Message.obtain();
                         msgloss.what = 1;
-                        msgloss.obj = "炮位1心跳超时，建议重启！";
+                        msgloss.obj = "炮位1心跳超时，请重启！为保证时间体系能对齐，请退回到第二步，重新进行时间体系对齐。";
                         myHandler.sendMessage(msgloss);
                         //Toast toast=Toast.makeText(FuncTcpServer_3.this, "炮位1心跳超时，建议重启！", Toast.LENGTH_SHORT);
                         //toast.show();
@@ -442,7 +442,7 @@ public class FuncTcpServer_3 extends Activity {
                     {
                         Message msgloss = Message.obtain();
                         msgloss.what = 1;
-                        msgloss.obj = "炮位2心跳超时，建议重启！";
+                        msgloss.obj = "炮位2心跳超时，请重启！为保证时间体系能对齐，请退回到第二步，重新进行时间体系对齐。";
                         myHandler.sendMessage(msgloss);
                         //Toast toast=Toast.makeText(FuncTcpServer_3.this, "炮位2心跳超时，建议重启！", Toast.LENGTH_SHORT);
                         //toast.show();

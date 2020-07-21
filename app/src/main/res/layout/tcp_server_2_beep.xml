@@ -64,7 +64,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="left"
-            android:text="*请在安静环境下，将三部手机并排摆放进行标定，标定过程中计时器会连续发出哔声，属于正常现象"/>
+            android:text="*请在安静环境下，将三部手机并排摆放，【计时员】放在中间，将外放音量设置到最大，点击【开始时间对齐】进行标定，直到标定成功方可进行下一步。标定过程中计时器会连续发出哔声，属于正常现象"/>
 
     </LinearLayout>
     <LinearLayout
