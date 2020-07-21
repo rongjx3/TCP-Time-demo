@@ -350,12 +350,12 @@ public class FuncTcpServer_3 extends Activity {
                     if(isAudioRun)
                     {
                         isAudioRun = false;
-                        btnListenTime.setText("3.测试开始");
+                        btnListenTime.setText("3.炮声测试开始");
                     }
                     else
                     {
                         isAudioRun = true;
-                        btnListenTime.setText("3.测试结束");
+                        btnListenTime.setText("3.炮声测试结束");
                         getMaxFromp1 = false;
                         getMaxFromp2 = false;
                     }
