@@ -59,7 +59,7 @@ public class FuncTcpClient extends Activity {
     ExecutorService exec = Executors.newCachedThreadPool();
     private SharedPreferences sp;
     private Thread AutoThread;
-    private boolean isAudioRun = false;
+    private boolean isAuto = true;
     private boolean needPause = false;
     private boolean needStop = false;
     private Object lock = new Object();
@@ -68,7 +68,7 @@ public class FuncTcpClient extends Activity {
     private double voicelimit = 70;
     private double maxVolume = 0;
     private Bundle maxVolumeBundle = new Bundle();
-    private boolean isConnecting = false, isConnected = false;
+    private boolean isConnecting = false, isConnected = false, isSelect = false;
     private Bundle overLimitBundle = new Bundle();
 
     CrashHandler crashHandler = CrashHandler.getInstance();
@@ -105,6 +105,7 @@ public class FuncTcpClient extends Activity {
                     exec.execute(myapp.tcpClient);
                     break;
                 case R.id.btn_tcpClientNext1:
+                    isSelect = true;
                     Intent intent = new Intent();
                     intent.setClass(FuncTcpClient.this,FuncTcpClient_2.class);
                     startActivity(intent);
@@ -237,7 +238,7 @@ public class FuncTcpClient extends Activity {
                     e.printStackTrace();
                 }
 
-                if(!isConnecting) {
+                if(!isConnecting && isAuto) {
                     btnStartClient.setText("连接中...");
                     btnStartClient.setEnabled(false);
 
@@ -251,16 +252,18 @@ public class FuncTcpClient extends Activity {
                     }
 
                     if(isConnected) {
-                        exec.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                myapp.tcpClient.send("hatbe");
-                            }
-                        });
+                        if(!isSelect && isAuto) {
+                            exec.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    myapp.tcpClient.send("hatbe");
+                                }
+                            });
 
-                        Intent intent = new Intent();
-                        intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
-                        startActivity(intent);
+                            Intent intent = new Intent();
+                            intent.setClass(FuncTcpClient.this, FuncTcpClient_2.class);
+                            startActivity(intent);
+                        }
                     }
                     else
                     {
